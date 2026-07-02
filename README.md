@@ -1,8 +1,8 @@
-# Training Time Machine — your data, on your machine
+# Training Time Machine: your data, on your machine
 
-**This repo is a protest.** In 2026 Strava put API access to your *own* activities behind a paid subscription: without paying, third-party apps — and you — can no longer read your data through the API (new apps get a `403 Application Inactive` until the developer holds an active subscription). Meanwhile Strava monetises the very same data. Your training history is **your** data; limiting your access to it is wrong.
+**This repo is a protest.** In 2026 Strava put API access to your *own* activities behind a paid subscription. If you don't pay, third-party apps (and you) can no longer read your data through the API; new apps get a `403 Application Inactive` until the developer holds an active subscription. Meanwhile Strava keeps monetising that same data itself. Your training history is **your** data; limiting your access to it is wrong.
 
-You don't have to pay to get it back. Data-portability law (GDPR Art. 20, UK GDPR, and equivalents elsewhere) guarantees your right to a copy of your personal data, and Strava honours it through its bulk export. This repo turns that export into something better than the API ever was: a local MySQL database, an MCP server so AI assistants can answer questions about your training, and a full analysis website — all offline, no Strava account required after the download, no subscription, ever.
+You don't have to pay to get it back. Data-portability law (GDPR Art. 20, UK GDPR, and equivalents elsewhere) guarantees your right to a copy of your personal data, and Strava honours it through its bulk export. This repo turns that export into something better than the API ever was: a local MySQL database, an MCP server so AI assistants can answer questions about your training, and a full analysis website. All offline, no Strava account required after the download, no subscription, ever.
 
 ## Get your data (free, legal, takes minutes)
 
@@ -16,20 +16,20 @@ You don't have to pay to get it back. Data-portability law (GDPR Art. 20, UK GDP
 | --- | --- | --- |
 | **Extract** | [`src/extract.ts`](src/extract.ts), [`src/sources/`](src/sources/), [`.claude/skills/strava-extract/`](.claude/skills/strava-extract/SKILL.md) (skill + bundled bash/PowerShell scripts) | Imports an export zip into MySQL: activities, full GPS/HR/power streams, athlete, gear, routes, goals. Providers are [pluggable](docs/architecture.md#pluggable-data-sources); Strava's bulk export is the built-in one |
 | **MCP server** | [`src/`](src/) | Lets MCP clients (Claude Code, Claude Desktop, ...) query your history: stats, activities, streams, plus arbitrary read-only SQL |
-| **Website** | [`website/`](website/) | "Training Time Machine" — dashboard, trends, calendar heatmap, activity maps, GPS heatmap, records, gear and goal progress. Provider-neutral by design: it never mentions any fitness service |
+| **Website** | [`website/`](website/) | "Training Time Machine": dashboard, trends, calendar heatmap, activity maps, GPS heatmap, records, gear and goal progress. Provider-neutral by design: it never mentions any fitness service |
 
 Everything runs locally. The only network access is OpenStreetMap map tiles in the website.
 
 ## Screenshots
 
-All screenshots show **synthetic demo data** — a fictional rider commuting between Wilmslow and central Manchester (generate it yourself, see [Try it without your data](#try-it-without-your-data)). No real person's data appears anywhere in this repo.
+All screenshots show **synthetic demo data**: a fictional rider commuting between Wilmslow and central Manchester (generate it yourself, see [Try it without your data](#try-it-without-your-data)). No real person's data appears anywhere in this repo.
 
 | | |
 | --- | --- |
-| **Dashboard** — headline totals, monthly distance, year comparisons ![Dashboard](docs/screenshots/dashboard.png) | **Trends** — weekly/monthly metrics with year-over-year table ![Trends](docs/screenshots/trends.png) |
-| **Calendar** — daily distance, GitHub-style ![Calendar](docs/screenshots/calendar.png) | **Activities** — search, filter, sort every activity ![Activities](docs/screenshots/activities.png) |
-| **Activity detail** — full stats, route map, elevation & speed profiles ![Activity detail](docs/screenshots/activity-detail.png) | **Heatmap** — every GPS point you've ever recorded, on one map ![Heatmap](docs/screenshots/heatmap.png) |
-| **Records** — bests, milestones, gear totals, goal progress ![Records](docs/screenshots/records.png) | |
+| **Dashboard**: headline totals, monthly distance, year comparisons ![Dashboard](docs/screenshots/dashboard.png) | **Trends**: weekly/monthly metrics with year-over-year table ![Trends](docs/screenshots/trends.png) |
+| **Calendar**: daily distance, GitHub-style ![Calendar](docs/screenshots/calendar.png) | **Activities**: search, filter, sort every activity ![Activities](docs/screenshots/activities.png) |
+| **Activity detail**: full stats, route map, elevation & speed profiles ![Activity detail](docs/screenshots/activity-detail.png) | **Heatmap**: every GPS point you've ever recorded, on one map ![Heatmap](docs/screenshots/heatmap.png) |
+| **Records**: bests, milestones, gear totals, goal progress ![Records](docs/screenshots/records.png) | |
 
 ## Try it without your data
 
@@ -38,12 +38,12 @@ Want to evaluate the tooling before requesting your archive? Generate the fictio
 ```sh
 npm install && npm run build
 docker compose up -d --wait                     # local MySQL
-node dist/demo/generate.js /tmp/demo-export     # 243 synthetic rides, Jan–Jun 2026
+node dist/demo/generate.js /tmp/demo-export     # 243 synthetic rides, Jan to Jun 2026
 node dist/extract.js /tmp/demo-export           # import them
 website/start.sh                                # browse it (Windows: website\start.ps1)
 ```
 
-Importing replaces the database contents — if you've already imported your real data, put the demo in its own database instead: `MYSQL_DATABASE=demo node dist/extract.js /tmp/demo-export`, then start the site with `MYSQL_DATABASE=demo website/start.sh`.
+Importing replaces the database contents. If you've already imported your real data, put the demo in its own database instead: `MYSQL_DATABASE=demo node dist/extract.js /tmp/demo-export`, then start the site with `MYSQL_DATABASE=demo website/start.sh`.
 
 ## Quickstart
 
@@ -68,12 +68,25 @@ website/start.sh          # Windows: website\start.ps1
 claude mcp add strava -- node /path/to/strava-mcp/dist/index.js
 ```
 
+## Upcoming features
+
+This started as a way to read my own history back. There's no reason to stop there. In rough order:
+
+- **Mobile apps (iOS and Android)**: record rides and runs straight into your own database. No account, no cloud, no terms-of-service update in your inbox.
+- **Training recording**: pair heart-rate straps, power meters and trainers over Bluetooth, and log sessions directly. The recording half of the walled garden is the easy half.
+- **More import sources**: Garmin, Polar, Suunto, Fitbit, Apple Health. The importer is already pluggable; each service is one adapter file away.
+- **Segments and personal leaderboards**: compete against yourself without paying for the privilege.
+- **Route planning** built from your own heatmap, since nobody knows your roads better than your data does.
+- **Friend-to-friend sharing**: opt-in and peer-to-peer, with no middleman renting your feed back to you.
+
+Every subscription feature that is really just *your own data, presented back to you*, is fair game. If a walled garden charges you to look over the wall, build a door. Contributions welcome.
+
 ## Documentation
 
-- [Architecture & data flow](docs/architecture.md) — how the three modules fit together, database schema
-- [Extract module](docs/extract.md) — importer behaviour, schema details, re-import semantics
-- [MCP server](docs/mcp-server.md) — tool reference, client registration, configuration
-- [Website](website/README.md) — pages, API reference, development
+- [Architecture & data flow](docs/architecture.md): how the three modules fit together, database schema
+- [Extract module](docs/extract.md): importer behaviour, schema details, re-import semantics
+- [MCP server](docs/mcp-server.md): tool reference, client registration, configuration
+- [Website](website/README.md): pages, API reference, development
 - Developer runbooks: [Linux](docs/runbooks/linux.md) · [macOS](docs/runbooks/macos.md) · [Windows](docs/runbooks/windows.md)
 - Beginner guides: [Windows](docs/runbooks/easy-windows.md) · [Mac](docs/runbooks/easy-macos.md) · [Linux](docs/runbooks/easy-linux.md)
 
@@ -89,7 +102,7 @@ cd website && npm test  # website API (24 tests)
 Your export contains personal data: email address, GPS tracks of every activity (including from your home), messages and more. This repo is built so none of it leaves your machine:
 
 - The database lives in a local Docker volume; MySQL binds to `127.0.0.1` only.
-- `data/`, `*.zip` and `.env` are gitignored — your export can never be committed.
+- `data/`, `*.zip` and `.env` are gitignored, so your export can never be committed.
 - Test fixtures are entirely synthetic.
 
 ## License

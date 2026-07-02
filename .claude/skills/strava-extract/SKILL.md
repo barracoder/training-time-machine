@@ -17,7 +17,7 @@ analysis website in `website/` can query it.
    hours; this is separate from account deletion and completely safe).
 
 2. Run the pre-created import script bundled with this skill, from the repo
-   root (`~/Developer/strava-mcp` — or wherever this repo lives):
+   root (`~/Developer/strava-mcp`, or wherever this repo lives):
 
    ```sh
    # macOS / Linux / Git Bash

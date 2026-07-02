@@ -3,14 +3,14 @@
 Imports a training-data export archive into the local MySQL database used
 by the MCP server and the website. Providers are pluggable; the built-in
 source is Strava's bulk export. The importer auto-detects the provider
-from the archive contents — see
+from the archive contents. See
 [Pluggable data sources](architecture.md#pluggable-data-sources) for how
 to add another.
 
 ## Getting the archive
 
 Request it at <https://www.strava.com/athlete/download_my_account>
-(**Request Your Archive** — this does not affect your account). Strava
+(**Request Your Archive**; this does not affect your account). Strava
 emails an `export_XXXXXXX.zip` containing, among other files:
 
 | Export file | Imported into |
@@ -42,20 +42,20 @@ node dist/extract.js ~/Downloads/export_XXXXXXX.zip   # zip or extracted dir
 ```
 
 In Claude Code, the `strava-extract` skill
-(`.claude/skills/strava-extract/`) wraps the same script — just say
+(`.claude/skills/strava-extract/`) wraps the same script. Just say
 "import my new Strava export".
 
 ## Semantics
 
 - **Replace, not merge**: the importer drops and recreates all tables, so
   re-running with a newer export gives you exactly that export's contents.
-- **Timestamps are UTC** — parsed from the export's `"Jul 2, 2026, 5:03:49 PM"`
+- **Timestamps are UTC**: parsed from the export's `"Jul 2, 2026, 5:03:49 PM"`
   format, stored as `DATETIME`.
 - **Duplicate CSV columns** (Strava repeats `Distance`, `Elapsed Time`, etc.)
   are disambiguated with a ` 2` suffix in the `fields` JSON; the typed
   `distance_m` column prefers the detailed metres value.
 - **GPX only**: activity streams are parsed from GPX (including gzipped
-  `.gpx.gz`). Binary `.fit` files are skipped with a warning — their summary
+  `.gpx.gz`). Binary `.fit` files are skipped with a warning; their summary
   row still imports, only the track points are missing.
 - **Manual/trainer activities** have no track file; they import with
   summary data and zero points.

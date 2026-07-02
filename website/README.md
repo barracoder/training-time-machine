@@ -12,7 +12,7 @@ per-activity maps and profiles, records, gear totals, and goal progress.
 ## Requirements
 
 - Node.js 20+
-- The local MySQL 8 database running and populated — start the database
+- The local MySQL 8 database running and populated: start the database
   container with `docker compose up` at the repo root, then load your
   activities with the [import tools](../docs/extract.md)
 
@@ -52,7 +52,7 @@ npm test
 ```
 
 Integration tests (vitest + supertest) exercise every API endpoint against the
-real database — the database must be running.
+real database, so the database must be running.
 
 ## Configuration
 
@@ -74,34 +74,34 @@ All endpoints are under `/api` and return JSON. All queries are parameterized.
 
 | Endpoint                    | Query params                                            | Returns                                                                 |
 | --------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `GET /api/summary`          | –                                                       | All-time totals, per-type breakdown, 12 most recent activities          |
+| `GET /api/summary`          | none                                                    | All-time totals, per-type breakdown, 12 most recent activities          |
 | `GET /api/monthly`          | `type` (optional activity type)                         | Per-month aggregates (count, distance, time, elevation, calories, speed) |
 | `GET /api/weekly`           | `type`                                                  | Per-ISO-week aggregates                                                  |
 | `GET /api/yearly`           | `type`                                                  | Per-year aggregates incl. longest activity                               |
-| `GET /api/cumulative`       | –                                                       | Per-year cumulative distance series (day-of-year → km)                   |
-| `GET /api/years`            | –                                                       | Years with activities, descending                                        |
+| `GET /api/cumulative`       | none                                                    | Per-year cumulative distance series (day-of-year → km)                   |
+| `GET /api/years`            | none                                                    | Years with activities, descending                                        |
 | `GET /api/calendar`         | `year` (required)                                       | Daily totals for the calendar heatmap                                    |
-| `GET /api/types`            | –                                                       | Distinct activity types                                                  |
+| `GET /api/types`            | none                                                    | Distinct activity types                                                  |
 | `GET /api/activities`       | `search`, `type`, `from`, `to`, `sort`, `dir`, `page`, `pageSize` | Paginated, sortable, filterable activity list with `total`     |
-| `GET /api/activities/:id`   | –                                                       | Full activity row + gear join + parsed `fields` JSON + point count       |
+| `GET /api/activities/:id`   | none                                                    | Full activity row + gear join + parsed `fields` JSON + point count       |
 | `GET /api/activities/:id/points` | `max` (default 500, cap 5000)                      | Downsampled GPS track with cumulative distance, elapsed time, segment speed |
-| `GET /api/heatmap`          | –                                                       | All GPS points aggregated to a ~50 m grid: `[lat, lon, weight][]`        |
-| `GET /api/records`          | –                                                       | Longest ride, biggest climb, fastest ≥5 km, best day/week/month/year, distance milestones, per-gear totals |
-| `GET /api/gear`             | –                                                       | Gear catalogue with usage totals                                         |
-| `GET /api/goals`            | –                                                       | Goals with computed current-period progress                              |
-| `GET /api/athlete`          | –                                                       | Athlete profile                                                          |
+| `GET /api/heatmap`          | none                                                    | All GPS points aggregated to a ~50 m grid: `[lat, lon, weight][]`        |
+| `GET /api/records`          | none                                                    | Longest ride, biggest climb, fastest ≥5 km, best day/week/month/year, distance milestones, per-gear totals |
+| `GET /api/gear`             | none                                                    | Gear catalogue with usage totals                                         |
+| `GET /api/goals`            | none                                                    | Goals with computed current-period progress                              |
+| `GET /api/athlete`          | none                                                    | Athlete profile                                                          |
 
 ## Pages
 
-- **Dashboard** — headline cards, distance-per-month bars, cumulative distance
+- **Dashboard**: headline cards, distance-per-month bars, cumulative distance
   per year comparison, recent activities
-- **Trends** — monthly/weekly aggregates with metric + type selectors,
+- **Trends**: monthly/weekly aggregates with metric + type selectors,
   year-over-year table with deltas
-- **Calendar** — GitHub-style daily-distance grid with year selector
-- **Activities** — searchable / filterable / sortable paginated table
-- **Activity detail** — full stats (columns + archive `fields`), route map,
+- **Calendar**: GitHub-style daily-distance grid with year selector
+- **Activities**: searchable / filterable / sortable paginated table
+- **Activity detail**: full stats (columns + archive `fields`), route map,
   elevation, speed, and sensor profiles
-- **Heatmap** — every activity's GPS points on one map (server-side grid
+- **Heatmap**: every activity's GPS points on one map (server-side grid
   aggregation keeps it fast)
-- **Records** — personal bests, distance milestones, per-gear totals, goals
+- **Records**: personal bests, distance milestones, per-gear totals, goals
   with progress

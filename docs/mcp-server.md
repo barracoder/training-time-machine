@@ -1,12 +1,12 @@
 # MCP server
 
 A [Model Context Protocol](https://modelcontextprotocol.io) server (stdio
-transport) that gives MCP clients — Claude Code, Claude Desktop, or anything
-MCP-compatible — read access to your imported Strava history.
+transport) that gives MCP clients (Claude Code, Claude Desktop, or anything
+MCP-compatible) read access to your imported Strava history.
 
 ## Prerequisites
 
-The MySQL database must be running and populated — see the
+The MySQL database must be running and populated; see the
 [extract module](extract.md). Then:
 
 ```sh
@@ -41,13 +41,13 @@ settings from the docker-compose defaults.
 
 | Tool | Arguments | Returns |
 | --- | --- | --- |
-| `get_athlete` | — | Profile row plus bikes and shoes |
-| `get_athlete_stats` | — | Per-type totals (count, km, hours, elevation) for last 4 weeks / year-to-date / all time |
+| `get_athlete` | none | Profile row plus bikes and shoes |
+| `get_athlete_stats` | none | Per-type totals (count, km, hours, elevation) for last 4 weeks / year-to-date / all time |
 | `list_activities` | `after`, `before` (ISO dates), `type`, `query` (name search), `page`, `per_page` | Paged activity summaries, most recent first, with `total` count |
 | `get_activity` | `activity_id` | Every column incl. the raw `fields` JSON (weather, power, temps, ...) |
 | `get_activity_streams` | `activity_id`, `max_points` (default 200) | Evenly downsampled GPS/altitude/HR/cadence/watts/temp time series |
-| `list_routes` | — | Saved routes |
-| `list_goals` | — | Distance/time goals |
+| `list_routes` | none | Saved routes |
+| `list_goals` | none | Distance/time goals |
 | `query` | `sql` | Any single read-only `SELECT` (or `WITH ... SELECT`). Writes rejected; capped at 200 rows unless the query has its own `LIMIT` |
 
 Example prompts once registered:
@@ -61,7 +61,7 @@ Example prompts once registered:
 
 - Errors come back as MCP tool errors with a readable message; if MySQL is
   down the message tells you to run `docker compose up -d`.
-- The server exits when its client disconnects (stdin closes) — it never
+- The server exits when its client disconnects (stdin closes). It never
   lingers.
 - Everything is read-only by design: the `query` tool accepts a single
   statement that must start with `SELECT`/`WITH` and contain no statement
@@ -78,4 +78,4 @@ Source lives in `src/`:
 | `csv.ts` | RFC 4180 CSV parser (also used by the extractor) |
 | `export.ts` | Export-archive reader + GPX stream parser (used by the extractor) |
 | `extract.ts` | The importer CLI |
-| `*.test.ts` | Tests — `npm test` |
+| `*.test.ts` | Tests (`npm test`) |

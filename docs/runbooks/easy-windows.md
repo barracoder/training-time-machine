@@ -1,17 +1,17 @@
-# Windows — step-by-step guide (no technical experience needed)
+# Windows: step-by-step guide (no technical experience needed)
 
 By the end you'll have a website on your own computer showing every activity
-you've ever recorded. Nothing is uploaded anywhere — it all stays on your PC.
+you've ever recorded. Nothing is uploaded anywhere. It all stays on your PC.
 
 > **What you'll need (all free):**
-> - **Node.js** (version 18 or newer) — runs the website
-> - **Docker Desktop** — runs the database
+> - **Node.js** (version 18 or newer): runs the website
+> - **Docker Desktop**: runs the database
 > - A **Strava account** to request your data export
 > - About 2 GB of free disk space
 >
 > Part 1 walks you through installing the first two.
 
-## Part 1 — Install two free programs (one time only)
+## Part 1: Install two free programs (one time only)
 
 **Node.js** (runs the website):
 
@@ -25,10 +25,10 @@ you've ever recorded. Nothing is uploaded anywhere — it all stays on your PC.
 1. Go to <https://www.docker.com/products/docker-desktop/>.
 2. Click **Download for Windows** and run the installer.
 3. Restart the computer if it asks, then open **Docker Desktop** from the
-   Start menu once — you can skip/close any sign-in screens. Leave it
+   Start menu once. You can skip/close any sign-in screens. Leave it
    running (a little whale icon appears near the clock).
 
-## Part 2 — Get this project
+## Part 2: Get this project
 
 1. On the project's GitHub page, click the green **Code** button, then
    **Download ZIP**.
@@ -37,17 +37,17 @@ you've ever recorded. Nothing is uploaded anywhere — it all stays on your PC.
 3. Rename the extracted folder to just `training-time-machine` if it has a
    longer name.
 
-## Part 3 — Ask Strava for your data (free — it's your legal right)
+## Part 3: Ask Strava for your data (free, and your legal right)
 
 1. Go to <https://www.strava.com/athlete/download_my_account> and log in.
 2. Click **Request Your Archive**. (This does **not** delete anything.)
-3. Wait for Strava's email — usually within a few hours — and use its
+3. Wait for Strava's email (usually within a few hours) and use its
    download link. It saves a file like `export_1234567.zip`. Leave it in Downloads.
 
-## Part 4 — Load your data
+## Part 4: Load your data
 
 1. Press the **Windows key**, type `powershell`, press **Enter**. A blue
-   window opens — this is just a place to type commands.
+   window opens. This is just a place to type commands.
 2. Copy this line, paste it into the blue window (right-click pastes), and
    press **Enter**:
 
@@ -62,7 +62,7 @@ you've ever recorded. Nothing is uploaded anywhere — it all stays on your PC.
    > once, then try again:
    > `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`
 
-## Part 5 — See your training history
+## Part 5: See your training history
 
 In the same blue window, paste:
 
@@ -78,15 +78,15 @@ press `Ctrl+C` in it) when you're finished.
 
 - **See the site again:** repeat Part 5 (it starts in seconds after the
   first time). Docker Desktop must be running.
-- **New data from Strava:** repeat Parts 3 and 4 — the new download
+- **New data from Strava:** repeat Parts 3 and 4. The new download
   replaces the old data automatically.
 
 ## If something goes wrong
 
 | You see | Do this |
 | --- | --- |
-| `docker : The term 'docker' is not recognized` | Docker Desktop isn't installed or hasn't finished starting — open it and wait for the whale icon |
-| `Cannot connect ... database` | Same as above — start Docker Desktop, wait a minute, try again |
-| `port is already allocated` or `Bind ... 3306 failed` | Another database program is using port 3306 — close it, or ask a technical friend to change the port in `docker-compose.yml` |
-| `npm : The term 'npm' is not recognized` | Node.js isn't installed — redo Part 1, then close and reopen PowerShell |
-| The page says "site can't be reached" | The blue window from Part 5 must stay open — run `.\start.ps1` again |
+| `docker : The term 'docker' is not recognized` | Docker Desktop isn't installed or hasn't finished starting. Open it and wait for the whale icon |
+| `Cannot connect ... database` | Same as above. Start Docker Desktop, wait a minute, try again |
+| `port is already allocated` or `Bind ... 3306 failed` | Another database program is using port 3306. Close it, or ask a technical friend to change the port in `docker-compose.yml` |
+| `npm : The term 'npm' is not recognized` | Node.js isn't installed. Redo Part 1, then close and reopen PowerShell |
+| The page says "site can't be reached" | The blue window from Part 5 must stay open. Run `.\start.ps1` again |

@@ -24,7 +24,7 @@ cd ~/Developer/strava-mcp
 npm install && npm run build
 ```
 
-## 2. Extract module — import your data
+## 2. Extract module: import your data
 
 Request your archive at <https://www.strava.com/athlete/download_my_account>,
 save the emailed `export_XXXXXXX.zip`, then:
