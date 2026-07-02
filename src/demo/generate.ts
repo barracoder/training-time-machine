@@ -241,4 +241,8 @@ fs.writeFileSync(
 );
 
 console.log(`Demo export written to ${OUT}: ${count} activities`);
-console.log(`Import with: MYSQL_DATABASE=demo node dist/extract.js ${OUT}`);
+console.log(`Import with: node dist/extract.js ${OUT}`);
+console.log(
+  `(importing replaces whatever is in the database — if you already imported ` +
+    `your real data, use a separate database instead: MYSQL_DATABASE=demo node dist/extract.js ${OUT})`,
+);

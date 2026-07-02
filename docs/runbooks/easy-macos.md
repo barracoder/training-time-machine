@@ -41,8 +41,8 @@ ever recorded. Nothing is uploaded anywhere — it all stays on your Mac.
 
 1. Go to <https://www.strava.com/athlete/download_my_account> and log in.
 2. Click **Request Your Archive**. (This does **not** delete anything.)
-3. Wait for Strava's email — usually under an hour — and download the
-   attachment. It's a file like `export_1234567.zip`. Leave it in Downloads.
+3. Wait for Strava's email — usually within a few hours — and use its
+   download link. It saves a file like `export_1234567.zip`. Leave it in Downloads.
 
 ## Part 4 — Load your data
 
@@ -82,6 +82,7 @@ records and more. Keep the Terminal window open while browsing; press
 | --- | --- |
 | `docker: command not found` | Docker Desktop isn't installed or hasn't finished starting — open it and wait for the whale icon |
 | `Cannot connect ... database` | Same as above — start Docker, wait a minute, try again |
+| `port is already allocated` or `Bind ... 3306 failed` | Another database program is using port 3306 — close it, or ask a technical friend to change the port in `docker-compose.yml` |
 | `npm: command not found` | Node.js isn't installed — redo Part 1, then close and reopen Terminal |
 | The page says "can't connect to server" | The Terminal window from Part 5 must stay open — run `./start.sh` again |
 | macOS says the app "can't be opened" | System Settings → Privacy & Security → click **Open Anyway** |

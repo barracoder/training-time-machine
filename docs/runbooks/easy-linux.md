@@ -52,8 +52,8 @@ home directory and rename it `training-time-machine`.)
 
 1. Go to <https://www.strava.com/athlete/download_my_account> and log in.
 2. Click **Request Your Archive**. (This does **not** delete anything.)
-3. Wait for Strava's email — usually under an hour — and download the
-   attachment. It's a file like `export_1234567.zip`. Leave it in Downloads.
+3. Wait for Strava's email — usually within a few hours — and use its
+   download link. It saves a file like `export_1234567.zip`. Leave it in Downloads.
 
 ## Part 4 — Load your data
 
@@ -86,6 +86,7 @@ in it when you're finished.
 | You see | Do this |
 | --- | --- |
 | `docker: command not found` | Redo the Docker block in Part 1 |
+| `port is already allocated` or `Bind ... 3306 failed` | Another database program is using port 3306 — close it, or change the port in `docker-compose.yml` |
 | `permission denied ... docker.sock` | You skipped the log-out/log-in after Part 1 |
 | `npm: command not found` | Redo the Node.js block in Part 1 |
 | The page says "unable to connect" | The terminal from Part 5 must stay open — run `./start.sh` again |

@@ -43,6 +43,8 @@ node dist/extract.js /tmp/demo-export           # import them
 website/start.sh                                # browse it (Windows: website\start.ps1)
 ```
 
+Importing replaces the database contents — if you've already imported your real data, put the demo in its own database instead: `MYSQL_DATABASE=demo node dist/extract.js /tmp/demo-export`, then start the site with `MYSQL_DATABASE=demo website/start.sh`.
+
 ## Quickstart
 
 Prerequisites: [Node.js ≥ 18](https://nodejs.org), [Docker](https://www.docker.com/products/docker-desktop/) (for MySQL), `unzip`.
@@ -51,7 +53,7 @@ Prerequisites: [Node.js ≥ 18](https://nodejs.org), [Docker](https://www.docker
 - **Developer?** Runbooks: [Linux](docs/runbooks/linux.md) · [macOS](docs/runbooks/macos.md) · [Windows](docs/runbooks/windows.md)
 
 ```sh
-git clone <this-repo> && cd strava-mcp
+git clone https://github.com/barracoder/my-training-data.git && cd my-training-data
 npm install
 
 # 1. Import your export (starts MySQL via docker compose automatically)
