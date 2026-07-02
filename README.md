@@ -22,7 +22,10 @@ Everything runs locally. The only network access is OpenStreetMap map tiles in t
 
 ## Quickstart
 
-Prerequisites: Node.js ≥ 18, Docker (for MySQL), `unzip`. OS-specific guides: [Linux](docs/runbooks/linux.md) · [macOS](docs/runbooks/macos.md) · [Windows](docs/runbooks/windows.md).
+Prerequisites: [Node.js ≥ 18](https://nodejs.org), [Docker](https://www.docker.com/products/docker-desktop/) (for MySQL), `unzip`.
+
+- **New to the command line?** Follow the step-by-step guides: [Windows](docs/runbooks/easy-windows.md) · [Mac](docs/runbooks/easy-macos.md) · [Linux](docs/runbooks/easy-linux.md)
+- **Developer?** Runbooks: [Linux](docs/runbooks/linux.md) · [macOS](docs/runbooks/macos.md) · [Windows](docs/runbooks/windows.md)
 
 ```sh
 git clone <this-repo> && cd strava-mcp
@@ -32,8 +35,8 @@ npm install
 .claude/skills/strava-extract/strava-extract.sh ~/Downloads/export_XXXXXXX.zip
 # Windows: .claude/skills/strava-extract/strava-extract.ps1 $HOME\Downloads\export_XXXXXXX.zip
 
-# 2. Explore in the browser
-cd website && npm install && npm run build && npm start
+# 2. Explore in the browser (installs/builds on first run, then opens the site)
+website/start.sh          # Windows: website\start.ps1
 # → http://localhost:5178
 
 # 3. Ask an AI about your riding (Claude Code)
@@ -46,7 +49,8 @@ claude mcp add strava -- node /path/to/strava-mcp/dist/index.js
 - [Extract module](docs/extract.md) — importer behaviour, schema details, re-import semantics
 - [MCP server](docs/mcp-server.md) — tool reference, client registration, configuration
 - [Website](website/README.md) — pages, API reference, development
-- Install runbooks: [Linux](docs/runbooks/linux.md) · [macOS](docs/runbooks/macos.md) · [Windows](docs/runbooks/windows.md)
+- Developer runbooks: [Linux](docs/runbooks/linux.md) · [macOS](docs/runbooks/macos.md) · [Windows](docs/runbooks/windows.md)
+- Beginner guides: [Windows](docs/runbooks/easy-windows.md) · [Mac](docs/runbooks/easy-macos.md) · [Linux](docs/runbooks/easy-linux.md)
 
 ## Testing
 
