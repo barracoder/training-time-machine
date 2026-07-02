@@ -20,6 +20,29 @@ You don't have to pay to get it back. Data-portability law (GDPR Art. 20, UK GDP
 
 Everything runs locally. The only network access is OpenStreetMap map tiles in the website.
 
+## Screenshots
+
+All screenshots show **synthetic demo data** — a fictional rider commuting between Wilmslow and central Manchester (generate it yourself, see [Try it without your data](#try-it-without-your-data)). No real person's data appears anywhere in this repo.
+
+| | |
+| --- | --- |
+| **Dashboard** — headline totals, monthly distance, year comparisons ![Dashboard](docs/screenshots/dashboard.png) | **Trends** — weekly/monthly metrics with year-over-year table ![Trends](docs/screenshots/trends.png) |
+| **Calendar** — daily distance, GitHub-style ![Calendar](docs/screenshots/calendar.png) | **Activities** — search, filter, sort every ride ![Activities](docs/screenshots/activities.png) |
+| **Activity detail** — full stats, route map, elevation & speed profiles ![Activity detail](docs/screenshots/activity-detail.png) | **Heatmap** — every GPS point you've ever recorded, on one map ![Heatmap](docs/screenshots/heatmap.png) |
+| **Records** — bests, milestones, gear totals, goal progress ![Records](docs/screenshots/records.png) | |
+
+## Try it without your data
+
+Want to evaluate the tooling before requesting your archive? Generate the fictional commuter dataset shown above and import it:
+
+```sh
+npm install && npm run build
+docker compose up -d --wait                     # local MySQL
+node dist/demo/generate.js /tmp/demo-export     # 243 synthetic rides, Jan–Jun 2026
+node dist/extract.js /tmp/demo-export           # import them
+website/start.sh                                # browse it (Windows: website\start.ps1)
+```
+
 ## Quickstart
 
 Prerequisites: [Node.js ≥ 18](https://nodejs.org), [Docker](https://www.docker.com/products/docker-desktop/) (for MySQL), `unzip`.
