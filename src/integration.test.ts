@@ -65,7 +65,7 @@ test("extract: loads fixture export into MySQL", async (t) => {
   const [acts] = (await pool!.query(
     `SELECT id, name, type, distance_m, commute FROM activities ORDER BY id`,
   )) as [Record<string, unknown>[], unknown];
-  assert.equal(acts.length, 3);
+  assert.equal(acts.length, 4);
   assert.equal(acts[0].name, "Test Morning Ride");
   assert.equal(acts[0].distance_m, 20000);
   assert.equal(acts[1].name, 'Ride with, comma "quoted"');
@@ -75,7 +75,7 @@ test("extract: loads fixture export into MySQL", async (t) => {
   const [[points]] = (await pool!.query(
     `SELECT COUNT(*) AS n FROM activity_points`,
   )) as unknown as [[{ n: number }]];
-  assert.equal(points.n, 5); // 3 points in 100.gpx + 2 in 200.gpx
+  assert.equal(points.n, 155); // 3 points in 100.gpx + 2 in 200.gpx + 150 in 400.gpx
 
   const [[hr]] = (await pool!.query(
     `SELECT heartrate, cadence FROM activity_points WHERE activity_id = 100 AND seq = 0`,
@@ -99,7 +99,7 @@ test("extract: re-running replaces data (idempotent)", async (t) => {
   const [[{ n }]] = (await pool!.query(
     `SELECT COUNT(*) AS n FROM activities`,
   )) as unknown as [[{ n: number }]];
-  assert.equal(n, 3);
+  assert.equal(n, 4);
 });
 
 /** Spawn the MCP server, send JSON-RPC requests, collect responses by id. */
@@ -216,7 +216,7 @@ test("mcp server: tools return fixture data", async (t) => {
   assert.equal(athlete.gear.length, 1);
 
   const list = JSON.parse(toolText(res.get(2)));
-  assert.equal(list.total, 2);
+  assert.equal(list.total, 3);
   assert.equal(list.activities[0].id, 200); // most recent first
 
   const streams = JSON.parse(toolText(res.get(3)));
@@ -251,7 +251,7 @@ test("mcp server: query tool runs SELECTs and rejects writes", async (t) => {
   ]);
 
   const grouped = JSON.parse(toolText(res.get(1)));
-  assert.deepEqual(grouped[0], { type: "Ride", n: 2 });
+  assert.deepEqual(grouped[0], { type: "Ride", n: 3 });
 
   assert.equal(res.get(2).result.isError, true);
   assert.match(toolText(res.get(2)), /Only a single SELECT/);
