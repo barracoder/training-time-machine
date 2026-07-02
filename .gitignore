@@ -1,4 +1,9 @@
+# Dependencies and build output
 node_modules/
 dist/
 .env
+
+# Your personal Strava data — never committed
 data/
+*.zip
+/strava-20*/

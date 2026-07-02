@@ -55,7 +55,7 @@ export class StravaExport {
     if (!fs.existsSync(path.join(dir, "activities.csv"))) {
       throw new Error(
         `${dir} does not look like an extracted Strava export (no activities.csv). ` +
-          `Unzip your export from https://www.strava.com/athlete/delete_your_account there, ` +
+          `Unzip your export from https://www.strava.com/athlete/download_my_account there, ` +
           `or point STRAVA_EXPORT_DIR at it.`,
       );
     }

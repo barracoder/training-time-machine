@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx creator="StravaGPX" version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
+ <metadata><time>2026-06-01T10:00:00Z</time></metadata>
+ <trk>
+  <name>Test Morning Ride</name>
+  <type>cycling</type>
+  <trkseg>
+   <trkpt lat="51.5000000" lon="-0.1000000">
+    <ele>10.0</ele>
+    <time>2026-06-01T10:00:00Z</time>
+    <extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>120</gpxtpx:hr><gpxtpx:cad>85</gpxtpx:cad></gpxtpx:TrackPointExtension></extensions>
+   </trkpt>
+   <trkpt lat="51.5001000" lon="-0.1001000">
+    <ele>11.5</ele>
+    <time>2026-06-01T10:00:05Z</time>
+    <extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>125</gpxtpx:hr><gpxtpx:cad>88</gpxtpx:cad></gpxtpx:TrackPointExtension></extensions>
+   </trkpt>
+   <trkpt lat="51.5002000" lon="-0.1002000">
+    <ele>12.0</ele>
+    <time>2026-06-01T10:00:10Z</time>
+    <extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>128</gpxtpx:hr><gpxtpx:cad>90</gpxtpx:cad></gpxtpx:TrackPointExtension></extensions>
+   </trkpt>
+  </trkseg>
+ </trk>
+</gpx>

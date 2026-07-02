@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx creator="StravaGPX" version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
+ <metadata><time>2026-06-02T18:00:00Z</time></metadata>
+ <trk>
+  <name>Test Evening Ride</name>
+  <type>cycling</type>
+  <trkseg>
+   <trkpt lat="51.4000000" lon="-0.2000000">
+    <ele>5.0</ele>
+    <time>2026-06-02T18:00:00Z</time>
+   </trkpt>
+   <trkpt lat="51.4001000" lon="-0.2001000">
+    <ele>5.5</ele>
+    <time>2026-06-02T18:00:04Z</time>
+   </trkpt>
+  </trkseg>
+ </trk>
+</gpx>

@@ -1,63 +1,67 @@
-# strava-mcp
+# Strava Time Machine — your data, on your machine
 
-An [MCP](https://modelcontextprotocol.io) server that serves your **Strava bulk export** — activities, GPS/heart-rate streams, profile, stats, routes and goals — to MCP clients (Claude Code, Claude Desktop, etc.). Everything is read locally from the export archive; no Strava API access or network needed.
+**This repo is a protest.** In 2026 Strava put API access to your *own* activities behind a paid subscription: without paying, third-party apps — and you — can no longer read your data through the API (new apps get a `403 Application Inactive` until the developer holds an active subscription). Meanwhile Strava monetises the very same data. Your training history is **your** data; limiting your access to it is wrong.
 
-## Tools
+You don't have to pay to get it back. Data-portability law (GDPR Art. 20, UK GDPR, and equivalents elsewhere) guarantees your right to a copy of your personal data, and Strava honours it through its bulk export. This repo turns that export into something better than the API ever was: a local MySQL database, an MCP server so AI assistants can answer questions about your riding, and a full analysis website — all offline, no Strava account required after the download, no subscription, ever.
 
-| Tool | Description |
-| --- | --- |
-| `get_athlete` | Profile from the export, plus bikes and shoes |
-| `get_athlete_stats` | Per-type totals: last 4 weeks, year-to-date, all-time |
-| `list_activities` | List/filter activities by date, type or name, with paging |
-| `get_activity` | Every recorded field for one activity (speeds, elevation, weather, gear...) |
-| `get_activity_streams` | Time-series from the activity's GPX: GPS, altitude, HR/cadence/power if recorded |
-| `list_routes` | Saved routes |
-| `list_goals` | Distance/time goals |
+## Get your data (free, legal, takes minutes)
 
-## Setup
+1. Go to **<https://www.strava.com/athlete/download_my_account>** (Settings → My Account → Download or Delete Your Account).
+2. Under *Download Request*, click **Request Your Archive**. This does **not** delete or affect your account.
+3. Strava emails you a `strava-YYYYMMDD.zip` (usually within a few hours). It contains `activities.csv`, per-activity GPS files, your profile, gear, routes, goals and more.
 
-### 1. Get your Strava export
+## What's in this repo
 
-Strava → Settings → [My Account → Download or Delete Your Account](https://www.strava.com/athlete/delete_your_account) → **Request Your Archive**. You'll get a `strava-YYYYMMDD.zip` by email.
+| Module | Folder | What it does |
+| --- | --- | --- |
+| **Extract** | [`src/extract.ts`](src/extract.ts), [`scripts/`](scripts/), [`.claude/skills/strava-extract/`](.claude/skills/strava-extract/SKILL.md) | Imports the export zip into MySQL: activities, full GPS/HR/power streams, athlete, gear, routes, goals |
+| **MCP server** | [`src/`](src/) | Lets MCP clients (Claude Code, Claude Desktop, ...) query your history: stats, activities, streams, plus arbitrary read-only SQL |
+| **Website** | [`website/`](website/) | "Strava Time Machine" — dashboard, trends, calendar heatmap, activity maps, GPS heatmap, records, gear and goal progress |
 
-### 2. Extract it
+Everything runs locally. The only network access is OpenStreetMap map tiles in the website.
 
-```sh
-unzip strava-YYYYMMDD.zip -d /path/to/strava-mcp/data
-```
+## Quickstart
 
-`data/` in this repo is gitignored and is the default location; any directory works via the `STRAVA_EXPORT_DIR` env var or a CLI argument.
-
-### 3. Install and build
+Prerequisites: Node.js ≥ 18, Docker (for MySQL), `unzip`. OS-specific guides: [Linux](docs/runbooks/linux.md) · [macOS](docs/runbooks/macos.md) · [Windows](docs/runbooks/windows.md).
 
 ```sh
+git clone <this-repo> && cd strava-mcp
 npm install
-npm run build
-```
 
-### 4. Register with your MCP client
+# 1. Import your export (starts MySQL via docker compose automatically)
+scripts/strava-extract.sh ~/Downloads/strava-YYYYMMDD.zip
 
-Claude Code:
+# 2. Explore in the browser
+cd website && npm install && npm run build && npm start
+# → http://localhost:5178
 
-```sh
+# 3. Ask an AI about your riding (Claude Code)
 claude mcp add strava -- node /path/to/strava-mcp/dist/index.js
 ```
 
-Or in any MCP client's JSON config:
+## Documentation
 
-```json
-{
-  "mcpServers": {
-    "strava": {
-      "command": "node",
-      "args": ["/path/to/strava-mcp/dist/index.js", "/path/to/export/dir"]
-    }
-  }
-}
+- [Architecture & data flow](docs/architecture.md) — how the three modules fit together, database schema
+- [Extract module](docs/extract.md) — importer behaviour, schema details, re-import semantics
+- [MCP server](docs/mcp-server.md) — tool reference, client registration, configuration
+- [Website](website/README.md) — pages, API reference, development
+- Install runbooks: [Linux](docs/runbooks/linux.md) · [macOS](docs/runbooks/macos.md) · [Windows](docs/runbooks/windows.md)
+
+## Testing
+
+```sh
+npm test              # extract + MCP server (26 tests; integration tests need MySQL up)
+cd website && npm test  # website API (24 tests)
 ```
 
-## Notes
+## Privacy
 
-- **Export quirks**: `activities.csv` repeats some column names; duplicates are exposed with a ` 2` suffix — e.g. `Distance` is km, `Distance 2` is meters. Export timestamps are UTC.
-- **Streams**: parsed from the per-activity GPX files. The rare `.fit` upload in an export is not parsed (GPX only); gzipped files are handled. Responses are downsampled to `max_points` (default 200) evenly spaced samples.
-- **Privacy**: the export contains personal data (email, GPS tracks, messages). Keep `data/` out of version control — the `.gitignore` here already excludes it.
+Your export contains personal data: email address, GPS tracks of every ride (including from your home), messages and more. This repo is built so none of it leaves your machine:
+
+- The database lives in a local Docker volume; MySQL binds to `127.0.0.1` only.
+- `data/`, `*.zip` and `.env` are gitignored — your export can never be committed.
+- Test fixtures are entirely synthetic.
+
+## License
+
+MIT

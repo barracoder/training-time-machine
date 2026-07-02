@@ -1,0 +1,104 @@
+# Strava Time Machine
+
+A dark-themed analysis website for your full Strava history, backed by the
+MySQL database populated by the strava-mcp import tooling. Explore dashboards,
+trends, a GitHub-style calendar, a global route heatmap, per-activity maps and
+profiles, records, gear totals, and goal progress.
+
+![screenshot placeholder](docs/screenshot.png)
+
+## Requirements
+
+- Node.js 20+
+- The `strava` MySQL 8 database running and populated (see repo root
+  `docker-compose.yml` / import scripts)
+
+## Setup
+
+```bash
+cd website
+npm install
+```
+
+## Development
+
+```bash
+npm run dev
+```
+
+Runs two processes via `concurrently`:
+
+- API (Express + tsx watch) on **http://localhost:5178**
+- Vite dev server on **http://localhost:5177** (proxies `/api` to 5178)
+
+Open http://localhost:5177.
+
+## Production
+
+```bash
+npm run build   # typechecks frontend + server, bundles the SPA into dist/
+npm start       # Express serves the built SPA and the API on port 5178
+```
+
+Open http://localhost:5178.
+
+## Tests
+
+```bash
+npm test
+```
+
+Integration tests (vitest + supertest) exercise every API endpoint against the
+real database — the database must be running.
+
+## Configuration
+
+| Env var          | Default     | Purpose                       |
+| ---------------- | ----------- | ----------------------------- |
+| `MYSQL_HOST`     | `127.0.0.1` | MySQL host                    |
+| `MYSQL_PORT`     | `3306`      | MySQL port                    |
+| `MYSQL_USER`     | `strava`    | MySQL user                    |
+| `MYSQL_PASSWORD` | `strava`    | MySQL password                |
+| `MYSQL_DATABASE` | `strava`    | Database name                 |
+| `PORT`           | `5178`      | API / production server port  |
+
+If the database is unreachable, API endpoints return
+`503 {"error": "database_unavailable", "message": "..."}`.
+
+## API reference
+
+All endpoints are under `/api` and return JSON. All queries are parameterized.
+
+| Endpoint                    | Query params                                            | Returns                                                                 |
+| --------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `GET /api/summary`          | –                                                       | All-time totals, per-type breakdown, 12 most recent activities          |
+| `GET /api/monthly`          | `type` (optional activity type)                         | Per-month aggregates (count, distance, time, elevation, calories, speed) |
+| `GET /api/weekly`           | `type`                                                  | Per-ISO-week aggregates                                                  |
+| `GET /api/yearly`           | `type`                                                  | Per-year aggregates incl. longest activity                               |
+| `GET /api/cumulative`       | –                                                       | Per-year cumulative distance series (day-of-year → km)                   |
+| `GET /api/years`            | –                                                       | Years with activities, descending                                        |
+| `GET /api/calendar`         | `year` (required)                                       | Daily totals for the calendar heatmap                                    |
+| `GET /api/types`            | –                                                       | Distinct activity types                                                  |
+| `GET /api/activities`       | `search`, `type`, `from`, `to`, `sort`, `dir`, `page`, `pageSize` | Paginated, sortable, filterable activity list with `total`     |
+| `GET /api/activities/:id`   | –                                                       | Full activity row + gear join + parsed `fields` JSON + point count       |
+| `GET /api/activities/:id/points` | `max` (default 500, cap 5000)                      | Downsampled GPS track with cumulative distance, elapsed time, segment speed |
+| `GET /api/heatmap`          | –                                                       | All GPS points aggregated to a ~50 m grid: `[lat, lon, weight][]`        |
+| `GET /api/records`          | –                                                       | Longest ride, biggest climb, fastest ≥5 km, best day/week/month/year, distance milestones, per-gear totals |
+| `GET /api/gear`             | –                                                       | Gear catalogue with usage totals                                         |
+| `GET /api/goals`            | –                                                       | Goals with computed current-period progress                              |
+| `GET /api/athlete`          | –                                                       | Athlete profile                                                          |
+
+## Pages
+
+- **Dashboard** — headline cards, distance-per-month bars, cumulative distance
+  per year comparison, recent activities
+- **Trends** — monthly/weekly aggregates with metric + type selectors,
+  year-over-year table with deltas
+- **Calendar** — GitHub-style daily-distance grid with year selector
+- **Activities** — searchable / filterable / sortable paginated table
+- **Activity detail** — full stats (columns + archive `fields`), route map,
+  elevation, speed, and sensor profiles
+- **Heatmap** — every ride's GPS points on one map (server-side grid
+  aggregation keeps it fast)
+- **Records** — personal bests, distance milestones, per-gear totals, goals
+  with progress
