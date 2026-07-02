@@ -2,3 +2,4 @@ Activity ID,Activity Date,Activity Name,Activity Type,Elapsed Time,Distance,Comm
 100,"Jun 1, 2026, 10:00:00 AM",Test Morning Ride,Ride,3600,20.00,false,Test Bike,activities/100.gpx,3500.0,20000.0,150.0,5.5,130.0
 200,"Jun 2, 2026, 6:00:00 PM","Ride with, comma ""quoted""",Ride,1800,10.00,true,Test Bike,activities/200.gpx,1700.0,10000.0,50.0,5.8,
 300,"Jan 15, 2025, 9:00:00 AM",Manual Run,Run,2400,5.00,false,,,2400.0,5000.0,10.0,2.1,
+400,"May 30, 2026, 9:00:00 AM",Long Test Ride,Ride,4500,3.30,false,Test Bike,activities/400.gpx,4470.0,3300.0,25.0,0.7,

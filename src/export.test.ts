@@ -42,13 +42,13 @@ test("nonEmpty drops empty values", () => {
 
 test("StravaExport: loads and sorts activities most recent first", () => {
   const data = new StravaExport(FIXTURE_DIR);
-  assert.equal(data.activities.length, 3);
+  assert.equal(data.activities.length, 4);
   assert.deepEqual(
     data.activities.map((a) => a.id),
-    ["200", "100", "300"],
+    ["200", "100", "400", "300"],
   );
   assert.equal(data.activities[1].name, "Test Morning Ride");
-  assert.equal(data.activities[2].type, "Run");
+  assert.equal(data.activities[3].type, "Run");
 });
 
 test("StravaExport: duplicate Distance column exposed with suffix", () => {
