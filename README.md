@@ -8,13 +8,13 @@ You don't have to pay to get it back. Data-portability law (GDPR Art. 20, UK GDP
 
 1. Go to **<https://www.strava.com/athlete/download_my_account>** (Settings → My Account → Download or Delete Your Account).
 2. Under *Download Request*, click **Request Your Archive**. This does **not** delete or affect your account.
-3. Strava emails you a `strava-YYYYMMDD.zip` (usually within a few hours). It contains `activities.csv`, per-activity GPS files, your profile, gear, routes, goals and more.
+3. Strava emails you an `export_XXXXXXX.zip` (usually within a few hours). It contains `activities.csv`, per-activity GPS files, your profile, gear, routes, goals and more.
 
 ## What's in this repo
 
 | Module | Folder | What it does |
 | --- | --- | --- |
-| **Extract** | [`src/extract.ts`](src/extract.ts), [`scripts/`](scripts/), [`.claude/skills/strava-extract/`](.claude/skills/strava-extract/SKILL.md) | Imports the export zip into MySQL: activities, full GPS/HR/power streams, athlete, gear, routes, goals |
+| **Extract** | [`src/extract.ts`](src/extract.ts), [`.claude/skills/strava-extract/`](.claude/skills/strava-extract/SKILL.md) (skill + bundled bash/PowerShell scripts) | Imports the export zip into MySQL: activities, full GPS/HR/power streams, athlete, gear, routes, goals |
 | **MCP server** | [`src/`](src/) | Lets MCP clients (Claude Code, Claude Desktop, ...) query your history: stats, activities, streams, plus arbitrary read-only SQL |
 | **Website** | [`website/`](website/) | "Strava Time Machine" — dashboard, trends, calendar heatmap, activity maps, GPS heatmap, records, gear and goal progress |
 
@@ -29,7 +29,8 @@ git clone <this-repo> && cd strava-mcp
 npm install
 
 # 1. Import your export (starts MySQL via docker compose automatically)
-scripts/strava-extract.sh ~/Downloads/strava-YYYYMMDD.zip
+.claude/skills/strava-extract/strava-extract.sh ~/Downloads/export_XXXXXXX.zip
+# Windows: .claude/skills/strava-extract/strava-extract.ps1 $HOME\Downloads\export_XXXXXXX.zip
 
 # 2. Explore in the browser
 cd website && npm install && npm run build && npm start

@@ -32,10 +32,10 @@ npm install && npm run build
 ## 2. Extract module — import your data
 
 Request your archive at <https://www.strava.com/athlete/download_my_account>,
-save the emailed `strava-YYYYMMDD.zip`, then:
+save the emailed `export_XXXXXXX.zip`, then:
 
 ```sh
-./scripts/strava-extract.sh ~/Downloads/strava-YYYYMMDD.zip
+./.claude/skills/strava-extract/strava-extract.sh ~/Downloads/export_XXXXXXX.zip
 ```
 
 This starts MySQL (Docker, port 3306 on 127.0.0.1, data in the

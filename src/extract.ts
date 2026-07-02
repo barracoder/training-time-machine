@@ -27,7 +27,15 @@ let tempDir: string | null = null;
 if (input.endsWith(".zip")) {
   tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "strava-export-"));
   console.log(`Extracting ${input} ...`);
-  execFileSync("unzip", ["-oq", input, "-d", tempDir]);
+  if (process.platform === "win32") {
+    execFileSync("powershell.exe", [
+      "-NoProfile",
+      "-Command",
+      `Expand-Archive -LiteralPath '${input}' -DestinationPath '${tempDir}' -Force`,
+    ]);
+  } else {
+    execFileSync("unzip", ["-oq", input, "-d", tempDir]);
+  }
   dir = tempDir;
 }
 

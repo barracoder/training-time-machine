@@ -4,9 +4,9 @@
 
 ```
                        ┌────────────────────────────────────────────┐
- strava-YYYYMMDD.zip   │            strava-mcp repository           │
+ export_XXXXXXX.zip    │            strava-mcp repository           │
  (your bulk export) ──▶│                                            │
-                       │  scripts/strava-extract.sh                 │
+                       │  strava-extract skill (.sh / .ps1)         │
                        │       └─▶ dist/extract.js  ── parses ──┐   │
                        │            (csv.ts, export.ts)         │   │
                        │                                        ▼   │
@@ -24,8 +24,9 @@
 
 Three modules share one MySQL database and never talk to Strava:
 
-1. **Extract** (`src/extract.ts` + `scripts/strava-extract.sh` + the
-   `strava-extract` Claude Code skill) — one-shot importer. Parses the export
+1. **Extract** (`src/extract.ts` + the `strava-extract` Claude Code skill in
+   `.claude/skills/strava-extract/`, which bundles equivalent bash and
+   PowerShell wrapper scripts) — one-shot importer. Parses the export
    with a small RFC 4180 CSV parser (`src/csv.ts`) and a GPX trackpoint parser
    (`src/export.ts`), then bulk-inserts into MySQL. Re-running drops and
    recreates the tables, so a fresh export fully replaces the old one.

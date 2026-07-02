@@ -1,6 +1,6 @@
 ---
 name: strava-extract
-description: Import a downloaded Strava bulk-export zip into the local MySQL database used by the strava MCP server and the analysis website. Use when the user has downloaded a new Strava archive (strava-YYYYMMDD.zip) and wants it loaded/refreshed for querying.
+description: Import a downloaded Strava bulk-export zip into the local MySQL database used by the strava MCP server and the analysis website. Use when the user has downloaded a new Strava archive (export_XXXXXXX.zip or strava-YYYYMMDD.zip) and wants it loaded/refreshed for querying.
 ---
 
 # strava-extract
@@ -11,16 +11,20 @@ analysis website in `website/` can query it.
 ## Steps
 
 1. Locate the archive. If the user didn't give a path, look for the newest
-   `strava-*.zip` in `~/Downloads`. If none exists, tell the user how to
+   `export_*.zip` or `strava-*.zip` in `~/Downloads`. If none exists, tell the user how to
    request one: https://www.strava.com/athlete/download_my_account →
    **Request Your Archive** (it arrives by email, usually within a few
    hours; this is separate from account deletion and completely safe).
 
-2. Run the pre-created import script from the repo root
-   (`~/Developer/strava-mcp` — or wherever this repo lives):
+2. Run the pre-created import script bundled with this skill, from the repo
+   root (`~/Developer/strava-mcp` — or wherever this repo lives):
 
    ```sh
-   scripts/strava-extract.sh [path-to-zip]
+   # macOS / Linux / Git Bash
+   .claude/skills/strava-extract/strava-extract.sh [path-to-zip]
+
+   # Windows PowerShell
+   .claude/skills/strava-extract/strava-extract.ps1 [path-to-zip]
    ```
 
    The script:

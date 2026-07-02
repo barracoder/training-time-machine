@@ -1,8 +1,7 @@
 # Windows runbook
 
-Commands below are for **PowerShell**. The repo's `scripts/strava-extract.sh`
-is a bash script — on Windows either use **Git Bash**/**WSL** to run it
-as-is, or follow the native PowerShell equivalents given here.
+Commands below are for **PowerShell**. Every bash script in this repo has a
+bundled PowerShell equivalent, so nothing here requires WSL or Git Bash.
 
 ## 0. Prerequisites
 
@@ -29,24 +28,16 @@ npm run build
 ## 2. Extract module — import your data
 
 Request your archive at <https://www.strava.com/athlete/download_my_account>
-and save the emailed `strava-YYYYMMDD.zip` to `Downloads`.
-
-**Option A — Git Bash (runs the bundled script):**
-
-```sh
-./scripts/strava-extract.sh ~/Downloads/strava-YYYYMMDD.zip
-```
-
-**Option B — native PowerShell (same steps, no bash):**
+and save the emailed `export_XXXXXXX.zip` to `Downloads`.
 
 ```powershell
-docker compose up -d --wait          # MySQL 8 on 127.0.0.1:3306
-node dist\extract.js "$HOME\Downloads\strava-YYYYMMDD.zip"
+.claude\skills\strava-extract\strava-extract.ps1 "$HOME\Downloads\export_XXXXXXX.zip"
+# no argument = newest export_*.zip / strava-*.zip in Downloads
 ```
 
-(The importer unzips the archive itself; it needs `unzip` on PATH — Git Bash
-provides it, or pre-extract the zip with Explorer and pass the folder path
-instead.)
+(The script starts MySQL via docker compose, builds if needed, and runs the
+importer; on Windows the importer unzips the archive with the built-in
+`Expand-Archive` — no extra tools needed.)
 
 Verify:
 

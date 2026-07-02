@@ -7,7 +7,7 @@ the MCP server and the website.
 
 Request it at <https://www.strava.com/athlete/download_my_account>
 (**Request Your Archive** — this does not affect your account). Strava
-emails a `strava-YYYYMMDD.zip` containing, among other files:
+emails an `export_XXXXXXX.zip` containing, among other files:
 
 | Export file | Imported into |
 | --- | --- |
@@ -25,8 +25,8 @@ Media, messages, followers etc. are present in the zip but not imported.
 The convenience script handles everything (start MySQL, build, import):
 
 ```sh
-scripts/strava-extract.sh ~/Downloads/strava-YYYYMMDD.zip
-# or with no argument: uses the newest strava-*.zip in ~/Downloads
+.claude/skills/strava-extract/strava-extract.sh ~/Downloads/export_XXXXXXX.zip
+# or with no argument: uses the newest export_*.zip / strava-*.zip in ~/Downloads
 ```
 
 Or run the steps manually:
@@ -34,7 +34,7 @@ Or run the steps manually:
 ```sh
 docker compose up -d --wait     # MySQL 8 on 127.0.0.1:3306
 npm install && npm run build
-node dist/extract.js ~/Downloads/strava-YYYYMMDD.zip   # zip or extracted dir
+node dist/extract.js ~/Downloads/export_XXXXXXX.zip   # zip or extracted dir
 ```
 
 In Claude Code, the `strava-extract` skill

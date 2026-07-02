@@ -7,3 +7,4 @@ dist/
 data/
 *.zip
 /strava-20*/
+/export_*/
