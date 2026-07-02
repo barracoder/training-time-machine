@@ -53,7 +53,7 @@ Prerequisites: [Node.js ≥ 18](https://nodejs.org), [Docker](https://www.docker
 - **Developer?** Runbooks: [Linux](docs/runbooks/linux.md) · [macOS](docs/runbooks/macos.md) · [Windows](docs/runbooks/windows.md)
 
 ```sh
-git clone https://github.com/barracoder/my-training-data.git && cd my-training-data
+git clone https://github.com/barracoder/training-time-machine.git && cd training-time-machine
 npm install
 
 # 1. Import your export (starts MySQL via docker compose automatically)
