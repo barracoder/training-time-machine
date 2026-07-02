@@ -26,18 +26,38 @@ Three modules share one MySQL database and never talk to Strava:
 
 1. **Extract** (`src/extract.ts` + the `strava-extract` Claude Code skill in
    `.claude/skills/strava-extract/`, which bundles equivalent bash and
-   PowerShell wrapper scripts) — one-shot importer. Parses the export
-   with a small RFC 4180 CSV parser (`src/csv.ts`) and a GPX trackpoint parser
-   (`src/export.ts`), then bulk-inserts into MySQL. Re-running drops and
-   recreates the tables, so a fresh export fully replaces the old one.
+   PowerShell wrapper scripts) — one-shot importer. Providers are pluggable
+   (`src/sources/`): the importer auto-detects which source recognises the
+   archive, asks it for normalized data, and bulk-inserts into MySQL.
+   Re-running drops and recreates the tables, so a fresh export fully
+   replaces the old one. The built-in source is Strava's bulk export,
+   parsed with a small RFC 4180 CSV parser (`src/csv.ts`) and a GPX
+   trackpoint parser (`src/export.ts`).
 
 2. **MCP server** (`src/index.ts`) — stdio JSON-RPC server built on
    `@modelcontextprotocol/sdk`. Eight read-only tools; the `query` tool
    accepts arbitrary single-statement SELECTs (writes rejected, results
    capped at 200 rows without an explicit LIMIT).
 
-3. **Website** (`website/`) — Express API + React SPA ("Strava Time
-   Machine"). See [website/README.md](../website/README.md).
+3. **Website** (`website/`) — Express API + React SPA ("Training Time
+   Machine"). Deliberately provider-neutral: it only knows about the
+   database schema, never about Strava. See
+   [website/README.md](../website/README.md).
+
+## Pluggable data sources
+
+`src/sources/types.ts` defines the contract: a `TrainingDataSource` has a
+`name`, a `detect(dir)` that inspects an extracted archive, and a
+`load(dir)` that returns normalized `SourceData` (athlete, gear,
+activities, routes, goals, and a `readPoints(activity)` accessor for
+track streams). The importer (`src/extract.ts`) is provider-agnostic — it
+asks `detectSource()` (`src/sources/index.ts`) which adapter recognises
+the directory and writes whatever comes back.
+
+To add a provider: implement the interface in `src/sources/<provider>.ts`
+(see `src/sources/strava.ts` for the reference implementation) and register
+it in the `sources` array in `src/sources/index.ts`. The database schema,
+MCP server and website need no changes.
 
 ## Database schema
 

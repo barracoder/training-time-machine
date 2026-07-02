@@ -1,11 +1,15 @@
 import mysql from 'mysql2/promise';
 
+// Name of the local database created by this repo's import tools. The user
+// and password default to the database name (matching the bundled container).
+const database = process.env.MYSQL_DATABASE ?? 'strava';
+
 export const pool = mysql.createPool({
   host: process.env.MYSQL_HOST ?? '127.0.0.1',
   port: Number(process.env.MYSQL_PORT ?? 3306),
-  user: process.env.MYSQL_USER ?? 'strava',
-  password: process.env.MYSQL_PASSWORD ?? 'strava',
-  database: process.env.MYSQL_DATABASE ?? 'strava',
+  user: process.env.MYSQL_USER ?? database,
+  password: process.env.MYSQL_PASSWORD ?? database,
+  database,
   waitForConnections: true,
   connectionLimit: 10,
   dateStrings: true,

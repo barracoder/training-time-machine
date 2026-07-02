@@ -1,6 +1,6 @@
 /**
  * API integration tests. They run against the real MySQL database configured
- * via MYSQL_* env vars (defaults: 127.0.0.1:3306 strava/strava, db `strava`).
+ * via MYSQL_* env vars (defaults: 127.0.0.1:3306, see server/db.ts).
  * Assertions check shapes and status codes, not dataset-specific values.
  */
 import { afterAll, describe, expect, it } from 'vitest';

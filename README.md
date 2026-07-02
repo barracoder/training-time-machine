@@ -1,4 +1,4 @@
-# Strava Time Machine — your data, on your machine
+# Training Time Machine — your data, on your machine
 
 **This repo is a protest.** In 2026 Strava put API access to your *own* activities behind a paid subscription: without paying, third-party apps — and you — can no longer read your data through the API (new apps get a `403 Application Inactive` until the developer holds an active subscription). Meanwhile Strava monetises the very same data. Your training history is **your** data; limiting your access to it is wrong.
 
@@ -14,9 +14,9 @@ You don't have to pay to get it back. Data-portability law (GDPR Art. 20, UK GDP
 
 | Module | Folder | What it does |
 | --- | --- | --- |
-| **Extract** | [`src/extract.ts`](src/extract.ts), [`.claude/skills/strava-extract/`](.claude/skills/strava-extract/SKILL.md) (skill + bundled bash/PowerShell scripts) | Imports the export zip into MySQL: activities, full GPS/HR/power streams, athlete, gear, routes, goals |
+| **Extract** | [`src/extract.ts`](src/extract.ts), [`src/sources/`](src/sources/), [`.claude/skills/strava-extract/`](.claude/skills/strava-extract/SKILL.md) (skill + bundled bash/PowerShell scripts) | Imports an export zip into MySQL: activities, full GPS/HR/power streams, athlete, gear, routes, goals. Providers are [pluggable](docs/architecture.md#pluggable-data-sources); Strava's bulk export is the built-in one |
 | **MCP server** | [`src/`](src/) | Lets MCP clients (Claude Code, Claude Desktop, ...) query your history: stats, activities, streams, plus arbitrary read-only SQL |
-| **Website** | [`website/`](website/) | "Strava Time Machine" — dashboard, trends, calendar heatmap, activity maps, GPS heatmap, records, gear and goal progress |
+| **Website** | [`website/`](website/) | "Training Time Machine" — dashboard, trends, calendar heatmap, activity maps, GPS heatmap, records, gear and goal progress. Provider-neutral by design: it never mentions any fitness service |
 
 Everything runs locally. The only network access is OpenStreetMap map tiles in the website.
 

@@ -36,8 +36,8 @@ export default function App() {
         <div className="brand">
           <span className="bolt">&#9889;</span>
           <span>
-            Strava Time Machine
-            <small>ride history explorer</small>
+            Training Time Machine
+            <small>your training data, on your machine</small>
           </span>
         </div>
         {NAV.map((n) => (
@@ -58,7 +58,7 @@ export default function App() {
               {athlete.city ? <div>{athlete.city}</div> : null}
             </>
           ) : (
-            'Local Strava archive'
+            'Local training data'
           )}
         </div>
       </aside>

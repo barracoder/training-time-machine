@@ -1,17 +1,20 @@
-# Strava Time Machine
+# Training Time Machine
 
-A dark-themed analysis website for your full Strava history, backed by the
-MySQL database populated by the strava-mcp import tooling. Explore dashboards,
-trends, a GitHub-style calendar, a global route heatmap, per-activity maps and
-profiles, records, gear totals, and goal progress.
+*Your training data, on your machine.*
+
+A dark-themed analysis website for your training data, imported into the local
+MySQL database by [this repo's import tools](../docs/extract.md). Explore
+dashboards, trends, a GitHub-style calendar, a global route heatmap,
+per-activity maps and profiles, records, gear totals, and goal progress.
 
 ![screenshot placeholder](docs/screenshot.png)
 
 ## Requirements
 
 - Node.js 20+
-- The `strava` MySQL 8 database running and populated (see repo root
-  `docker-compose.yml` / import scripts)
+- The local MySQL 8 database running and populated — start the database
+  container with `docker compose up` at the repo root, then load your
+  activities with the [import tools](../docs/extract.md)
 
 ## Setup
 
@@ -57,9 +60,9 @@ real database — the database must be running.
 | ---------------- | ----------- | ----------------------------- |
 | `MYSQL_HOST`     | `127.0.0.1` | MySQL host                    |
 | `MYSQL_PORT`     | `3306`      | MySQL port                    |
-| `MYSQL_USER`     | `strava`    | MySQL user                    |
-| `MYSQL_PASSWORD` | `strava`    | MySQL password                |
-| `MYSQL_DATABASE` | `strava`    | Database name                 |
+| `MYSQL_USER`     | database name | MySQL user                  |
+| `MYSQL_PASSWORD` | database name | MySQL password              |
+| `MYSQL_DATABASE` | `strava`    | Database name (as created by the import tools) |
 | `PORT`           | `5178`      | API / production server port  |
 
 If the database is unreachable, API endpoints return

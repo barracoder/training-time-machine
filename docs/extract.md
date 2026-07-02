@@ -1,7 +1,11 @@
 # Extract module
 
-Imports a Strava bulk-export archive into the local MySQL database used by
-the MCP server and the website.
+Imports a training-data export archive into the local MySQL database used
+by the MCP server and the website. Providers are pluggable; the built-in
+source is Strava's bulk export. The importer auto-detects the provider
+from the archive contents — see
+[Pluggable data sources](architecture.md#pluggable-data-sources) for how
+to add another.
 
 ## Getting the archive
 

@@ -1,8 +1,8 @@
 {
-  "name": "strava-time-machine",
+  "name": "training-time-machine",
   "private": true,
   "version": "1.0.0",
-  "description": "Strava history analysis website (API + SPA)",
+  "description": "Training data analysis website (API + SPA)",
   "type": "module",
   "scripts": {
     "dev": "concurrently -n api,web -c yellow,cyan \"tsx watch server/index.ts\" \"vite\"",
