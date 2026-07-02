@@ -1,55 +1,46 @@
 # strava-mcp
 
-An [MCP](https://modelcontextprotocol.io) server for the [Strava API](https://developers.strava.com/), giving MCP clients (Claude Code, Claude Desktop, etc.) read access to your activities, profile, stats and segments.
+An [MCP](https://modelcontextprotocol.io) server that serves your **Strava bulk export** — activities, GPS/heart-rate streams, profile, stats, routes and goals — to MCP clients (Claude Code, Claude Desktop, etc.). Everything is read locally from the export archive; no Strava API access or network needed.
 
 ## Tools
 
 | Tool | Description |
 | --- | --- |
-| `get_athlete` | Authenticated athlete's profile (name, weight, FTP, gear) |
-| `get_athlete_stats` | Recent / YTD / all-time ride, run and swim totals |
-| `list_activities` | List activities with date filters and paging |
-| `get_activity` | Full activity detail (splits, segment efforts, gear) |
-| `get_activity_streams` | Time-series data: heart rate, power, pace, GPS, altitude |
-| `get_activity_zones` | Heart rate / power zone distribution for an activity |
-| `list_starred_segments` | Segments you've starred |
-| `get_segment` | Segment detail including your PR |
+| `get_athlete` | Profile from the export, plus bikes and shoes |
+| `get_athlete_stats` | Per-type totals: last 4 weeks, year-to-date, all-time |
+| `list_activities` | List/filter activities by date, type or name, with paging |
+| `get_activity` | Every recorded field for one activity (speeds, elevation, weather, gear...) |
+| `get_activity_streams` | Time-series from the activity's GPX: GPS, altitude, HR/cadence/power if recorded |
+| `list_routes` | Saved routes |
+| `list_goals` | Distance/time goals |
 
 ## Setup
 
-### 1. Create a Strava API application
+### 1. Get your Strava export
 
-1. Go to [strava.com/settings/api](https://www.strava.com/settings/api) and create an application.
-2. Set **Authorization Callback Domain** to `localhost`.
-3. Note the **Client ID** and **Client Secret**.
+Strava → Settings → [My Account → Download or Delete Your Account](https://www.strava.com/athlete/delete_your_account) → **Request Your Archive**. You'll get a `strava-YYYYMMDD.zip` by email.
 
-### 2. Install and build
+### 2. Extract it
+
+```sh
+unzip strava-YYYYMMDD.zip -d /path/to/strava-mcp/data
+```
+
+`data/` in this repo is gitignored and is the default location; any directory works via the `STRAVA_EXPORT_DIR` env var or a CLI argument.
+
+### 3. Install and build
 
 ```sh
 npm install
 npm run build
 ```
 
-### 3. Authorize (one time)
-
-The token shown on the API settings page only has `read` scope, so a proper OAuth flow is needed to read activities. This starts a local server on port 8723, opens the Strava consent page, and prints your refresh token:
-
-```sh
-STRAVA_CLIENT_ID=<id> STRAVA_CLIENT_SECRET=<secret> npm run auth
-```
-
-Copy the printed `STRAVA_REFRESH_TOKEN` — the server refreshes short-lived access tokens from it automatically. Default scopes are `read,activity:read_all,profile:read_all`; override with `STRAVA_SCOPES`.
-
 ### 4. Register with your MCP client
 
 Claude Code:
 
 ```sh
-claude mcp add strava \
-  --env STRAVA_CLIENT_ID=<id> \
-  --env STRAVA_CLIENT_SECRET=<secret> \
-  --env STRAVA_REFRESH_TOKEN=<token> \
-  -- node /path/to/strava-mcp/dist/index.js
+claude mcp add strava -- node /path/to/strava-mcp/dist/index.js
 ```
 
 Or in any MCP client's JSON config:
@@ -59,12 +50,7 @@ Or in any MCP client's JSON config:
   "mcpServers": {
     "strava": {
       "command": "node",
-      "args": ["/path/to/strava-mcp/dist/index.js"],
-      "env": {
-        "STRAVA_CLIENT_ID": "<id>",
-        "STRAVA_CLIENT_SECRET": "<secret>",
-        "STRAVA_REFRESH_TOKEN": "<token>"
-      }
+      "args": ["/path/to/strava-mcp/dist/index.js", "/path/to/export/dir"]
     }
   }
 }
@@ -72,6 +58,6 @@ Or in any MCP client's JSON config:
 
 ## Notes
 
-- **Rate limits**: default Strava apps get 200 requests per 15 minutes and 2,000 per day. The server surfaces a clear error on HTTP 429.
-- **Token rotation**: Strava rotates refresh tokens on every refresh, but the previous token stays valid until used, so a static `STRAVA_REFRESH_TOKEN` in config keeps working across restarts.
-- **Scopes**: read-only by default. No write scopes are requested, so the server cannot create or modify activities.
+- **Export quirks**: `activities.csv` repeats some column names; duplicates are exposed with a ` 2` suffix — e.g. `Distance` is km, `Distance 2` is meters. Export timestamps are UTC.
+- **Streams**: parsed from the per-activity GPX files. The rare `.fit` upload in an export is not parsed (GPX only); gzipped files are handled. Responses are downsampled to `max_points` (default 200) evenly spaced samples.
+- **Privacy**: the export contains personal data (email, GPS tracks, messages). Keep `data/` out of version control — the `.gitignore` here already excludes it.
