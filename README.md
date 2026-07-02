@@ -1,6 +1,8 @@
 # Training Time Machine: your data, on your machine
 
-[![PR checks](https://github.com/barracoder/training-time-machine/actions/workflows/pr-checks.yml/badge.svg?branch=main)](https://github.com/barracoder/training-time-machine/actions/workflows/pr-checks.yml)
+[![Build](https://github.com/barracoder/training-time-machine/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/barracoder/training-time-machine/actions/workflows/build.yml)
+[![Test](https://github.com/barracoder/training-time-machine/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/barracoder/training-time-machine/actions/workflows/test.yml)
+[![Dependencies](https://github.com/barracoder/training-time-machine/actions/workflows/dependencies.yml/badge.svg?branch=main)](https://github.com/barracoder/training-time-machine/actions/workflows/dependencies.yml)
 
 **This repo is a protest.** In 2026 Strava put API access to your *own* activities behind a paid subscription. If you don't pay, third-party apps (and you) can no longer read your data through the API; new apps get a `403 Application Inactive` until the developer holds an active subscription. Meanwhile Strava keeps monetising that same data itself. Your training history is **your** data; limiting your access to it is wrong.
 
