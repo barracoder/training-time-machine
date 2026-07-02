@@ -44,7 +44,7 @@ export default function Dashboard() {
     <>
       <h1>Dashboard</h1>
       <p className="subtitle">
-        {t?.first_activity ? `Every ride from ${dateStr(t.first_activity)} to ${dateStr(t.last_activity)}` : 'All-time overview'}
+        {t?.first_activity ? `Every activity from ${dateStr(t.first_activity)} to ${dateStr(t.last_activity)}` : 'All-time overview'}
       </p>
 
       <DataState loading={summary.loading} error={summary.error}>

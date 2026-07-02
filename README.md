@@ -2,7 +2,7 @@
 
 **This repo is a protest.** In 2026 Strava put API access to your *own* activities behind a paid subscription: without paying, third-party apps — and you — can no longer read your data through the API (new apps get a `403 Application Inactive` until the developer holds an active subscription). Meanwhile Strava monetises the very same data. Your training history is **your** data; limiting your access to it is wrong.
 
-You don't have to pay to get it back. Data-portability law (GDPR Art. 20, UK GDPR, and equivalents elsewhere) guarantees your right to a copy of your personal data, and Strava honours it through its bulk export. This repo turns that export into something better than the API ever was: a local MySQL database, an MCP server so AI assistants can answer questions about your riding, and a full analysis website — all offline, no Strava account required after the download, no subscription, ever.
+You don't have to pay to get it back. Data-portability law (GDPR Art. 20, UK GDPR, and equivalents elsewhere) guarantees your right to a copy of your personal data, and Strava honours it through its bulk export. This repo turns that export into something better than the API ever was: a local MySQL database, an MCP server so AI assistants can answer questions about your training, and a full analysis website — all offline, no Strava account required after the download, no subscription, ever.
 
 ## Get your data (free, legal, takes minutes)
 
@@ -27,7 +27,7 @@ All screenshots show **synthetic demo data** — a fictional rider commuting bet
 | | |
 | --- | --- |
 | **Dashboard** — headline totals, monthly distance, year comparisons ![Dashboard](docs/screenshots/dashboard.png) | **Trends** — weekly/monthly metrics with year-over-year table ![Trends](docs/screenshots/trends.png) |
-| **Calendar** — daily distance, GitHub-style ![Calendar](docs/screenshots/calendar.png) | **Activities** — search, filter, sort every ride ![Activities](docs/screenshots/activities.png) |
+| **Calendar** — daily distance, GitHub-style ![Calendar](docs/screenshots/calendar.png) | **Activities** — search, filter, sort every activity ![Activities](docs/screenshots/activities.png) |
 | **Activity detail** — full stats, route map, elevation & speed profiles ![Activity detail](docs/screenshots/activity-detail.png) | **Heatmap** — every GPS point you've ever recorded, on one map ![Heatmap](docs/screenshots/heatmap.png) |
 | **Records** — bests, milestones, gear totals, goal progress ![Records](docs/screenshots/records.png) | |
 
@@ -64,7 +64,7 @@ npm install
 website/start.sh          # Windows: website\start.ps1
 # → http://localhost:5178
 
-# 3. Ask an AI about your riding (Claude Code)
+# 3. Ask an AI about your training (Claude Code)
 claude mcp add strava -- node /path/to/strava-mcp/dist/index.js
 ```
 
@@ -86,7 +86,7 @@ cd website && npm test  # website API (24 tests)
 
 ## Privacy
 
-Your export contains personal data: email address, GPS tracks of every ride (including from your home), messages and more. This repo is built so none of it leaves your machine:
+Your export contains personal data: email address, GPS tracks of every activity (including from your home), messages and more. This repo is built so none of it leaves your machine:
 
 - The database lives in a local Docker volume; MySQL binds to `127.0.0.1` only.
 - `data/`, `*.zip` and `.env` are gitignored — your export can never be committed.

@@ -1,6 +1,6 @@
 # Linux — step-by-step guide (minimal experience needed)
 
-By the end you'll have a website on your own computer showing every ride
+By the end you'll have a website on your own computer showing every activity
 you've ever recorded. Nothing is uploaded anywhere — it all stays local.
 
 These steps are written for Ubuntu (and work on Mint, Pop!_OS and other
@@ -64,7 +64,7 @@ cd ~/training-time-machine && .claude/skills/strava-extract/strava-extract.sh
 It automatically finds the Strava file in your Downloads. The first run
 takes a few minutes; it's done when you see **Done.**
 
-## Part 5 — See your riding history
+## Part 5 — See your training history
 
 ```sh
 cd ~/training-time-machine/website && ./start.sh

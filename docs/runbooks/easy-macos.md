@@ -1,6 +1,6 @@
 # Mac — step-by-step guide (no technical experience needed)
 
-By the end you'll have a website on your own Mac showing every ride you've
+By the end you'll have a website on your own Mac showing every activity you've
 ever recorded. Nothing is uploaded anywhere — it all stays on your Mac.
 
 > **What you'll need (all free):**
@@ -57,7 +57,7 @@ ever recorded. Nothing is uploaded anywhere — it all stays on your Mac.
    It automatically finds the Strava file in your Downloads. The first run
    takes a few minutes; it's done when you see **Done.**
 
-## Part 5 — See your riding history
+## Part 5 — See your training history
 
 In the same Terminal window, paste:
 

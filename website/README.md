@@ -101,7 +101,7 @@ All endpoints are under `/api` and return JSON. All queries are parameterized.
 - **Activities** — searchable / filterable / sortable paginated table
 - **Activity detail** — full stats (columns + archive `fields`), route map,
   elevation, speed, and sensor profiles
-- **Heatmap** — every ride's GPS points on one map (server-side grid
+- **Heatmap** — every activity's GPS points on one map (server-side grid
   aggregation keeps it fast)
 - **Records** — personal bests, distance milestones, per-gear totals, goals
   with progress

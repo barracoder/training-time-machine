@@ -1,6 +1,6 @@
 # Windows — step-by-step guide (no technical experience needed)
 
-By the end you'll have a website on your own computer showing every ride
+By the end you'll have a website on your own computer showing every activity
 you've ever recorded. Nothing is uploaded anywhere — it all stays on your PC.
 
 > **What you'll need (all free):**
@@ -62,7 +62,7 @@ you've ever recorded. Nothing is uploaded anywhere — it all stays on your PC.
    > once, then try again:
    > `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`
 
-## Part 5 — See your riding history
+## Part 5 — See your training history
 
 In the same blue window, paste:
 
