@@ -7,7 +7,7 @@ MySQL database by [this repo's import tools](../docs/extract.md). Explore
 dashboards, trends, a GitHub-style calendar, a global route heatmap,
 per-activity maps and profiles, records, gear totals, and goal progress.
 
-![screenshot placeholder](docs/screenshot.png)
+![Dashboard](../docs/screenshots/dashboard.png)
 
 ## Requirements
 
