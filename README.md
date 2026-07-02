@@ -43,7 +43,12 @@ node dist/extract.js /tmp/demo-export           # import them
 website/start.sh                                # browse it (Windows: website\start.ps1)
 ```
 
-Importing replaces the database contents. If you've already imported your real data, put the demo in its own database instead: `MYSQL_DATABASE=demo node dist/extract.js /tmp/demo-export`, then start the site with `MYSQL_DATABASE=demo website/start.sh`.
+Importing replaces the database contents. If you've already imported your real data, keep the demo in its own database:
+
+```sh
+MYSQL_DATABASE=demo node dist/extract.js /tmp/demo-export
+MYSQL_DATABASE=demo website/start.sh
+```
 
 ## Quickstart
 
@@ -65,7 +70,7 @@ website/start.sh          # Windows: website\start.ps1
 # → http://localhost:5178
 
 # 3. Ask an AI about your training (Claude Code)
-claude mcp add strava -- node /path/to/strava-mcp/dist/index.js
+claude mcp add strava -- node /path/to/training-time-machine/dist/index.js
 ```
 
 ## Upcoming features

@@ -4,7 +4,7 @@
 
 ```
                        ┌────────────────────────────────────────────┐
- export_XXXXXXX.zip    │            strava-mcp repository           │
+ export_XXXXXXX.zip    │      training-time-machine repository      │
  (your bulk export) ──▶│                                            │
                        │  strava-extract skill (.sh / .ps1)         │
                        │       └─▶ dist/extract.js  ── parses ──┐   │

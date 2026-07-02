@@ -24,8 +24,8 @@ Verify: `node -v` (≥ 18), `docker compose version`.
 ## 1. Clone and build
 
 ```sh
-git clone <this-repo> ~/strava-mcp
-cd ~/strava-mcp
+git clone https://github.com/barracoder/training-time-machine.git ~/training-time-machine
+cd ~/training-time-machine
 npm install && npm run build
 ```
 
@@ -50,19 +50,19 @@ npm test   # 26 tests, integration tests use a separate strava_test database
 
 ```sh
 # Claude Code
-claude mcp add strava -- node ~/strava-mcp/dist/index.js
+claude mcp add strava -- node ~/training-time-machine/dist/index.js
 ```
 
 For Claude Desktop, add to `~/.config/Claude/claude_desktop_config.json`:
 
 ```json
-{"mcpServers": {"strava": {"command": "node", "args": ["/home/YOU/strava-mcp/dist/index.js"]}}}
+{"mcpServers": {"strava": {"command": "node", "args": ["/home/YOU/training-time-machine/dist/index.js"]}}}
 ```
 
 ## 4. Website
 
 ```sh
-cd ~/strava-mcp/website
+cd ~/training-time-machine/website
 npm install
 npm run build
 npm start          # http://localhost:5178
@@ -76,7 +76,7 @@ Description=Strava Time Machine
 After=docker.service
 
 [Service]
-WorkingDirectory=%h/strava-mcp/website
+WorkingDirectory=%h/training-time-machine/website
 ExecStart=/usr/bin/env npm start
 Restart=on-failure
 
@@ -92,6 +92,6 @@ systemctl --user daemon-reload && systemctl --user enable --now strava-web
 
 ```sh
 claude mcp remove strava
-docker compose -f ~/strava-mcp/docker-compose.yml down -v   # -v deletes the database
-rm -rf ~/strava-mcp
+docker compose -f ~/training-time-machine/docker-compose.yml down -v   # -v deletes the database
+rm -rf ~/training-time-machine
 ```

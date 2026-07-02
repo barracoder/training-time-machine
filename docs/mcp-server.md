@@ -18,7 +18,7 @@ npm install && npm run build
 Claude Code:
 
 ```sh
-claude mcp add strava -- node /path/to/strava-mcp/dist/index.js
+claude mcp add strava -- node /path/to/training-time-machine/dist/index.js
 ```
 
 Claude Desktop / generic JSON config:
@@ -28,14 +28,18 @@ Claude Desktop / generic JSON config:
   "mcpServers": {
     "strava": {
       "command": "node",
-      "args": ["/path/to/strava-mcp/dist/index.js"]
+      "args": ["/path/to/training-time-machine/dist/index.js"]
     }
   }
 }
 ```
 
-Add `"env": {"MYSQL_PORT": "3307", ...}` if you changed the database
-settings from the docker-compose defaults.
+If you changed the database settings from the docker-compose defaults,
+pass them in the `env` block:
+
+```json
+"env": { "MYSQL_PORT": "3307" }
+```
 
 ## Tools
 

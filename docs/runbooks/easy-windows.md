@@ -58,9 +58,12 @@ you've ever recorded. Nothing is uploaded anywhere. It all stays on your PC.
    It automatically finds the Strava file in your Downloads. The first run
    takes a few minutes; it's done when you see **Done.**
 
-   > If you see an error about "running scripts is disabled", run this
-   > once, then try again:
-   > `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`
+   If you see an error about "running scripts is disabled", paste this
+   once, press **Enter**, then try again:
+
+   ```
+   Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+   ```
 
 ## Part 5: See your training history
 

@@ -19,8 +19,8 @@ Verify: `node -v` (≥ 18), `docker compose version`.
 ## 1. Clone and build
 
 ```sh
-git clone <this-repo> ~/Developer/strava-mcp
-cd ~/Developer/strava-mcp
+git clone https://github.com/barracoder/training-time-machine.git ~/training-time-machine
+cd ~/training-time-machine
 npm install && npm run build
 ```
 
@@ -48,35 +48,33 @@ In Claude Code you can instead use the bundled skill: `/strava-extract`.
 
 ```sh
 # Claude Code
-claude mcp add strava -- node ~/Developer/strava-mcp/dist/index.js
+claude mcp add strava -- node ~/training-time-machine/dist/index.js
 ```
 
 For Claude Desktop, add to
 `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
-{"mcpServers": {"strava": {"command": "node", "args": ["/Users/YOU/Developer/strava-mcp/dist/index.js"]}}}
+{"mcpServers": {"strava": {"command": "node", "args": ["/Users/YOU/training-time-machine/dist/index.js"]}}}
 ```
 
 ## 4. Website
 
 ```sh
-cd ~/Developer/strava-mcp/website
+cd ~/training-time-machine/website
 npm install
 npm run build
 npm start          # http://localhost:5178
 ```
 
-To keep it running across logins, use a LaunchAgent
-(`~/Library/LaunchAgents/com.strava-mcp.web.plist`) with
-`ProgramArguments = [npm, start]` and
-`WorkingDirectory = ~/Developer/strava-mcp/website`, or just run `npm start`
-in a terminal tab when you want it.
+To keep it running across logins, create a LaunchAgent in
+`~/Library/LaunchAgents` that runs `npm start` in the `website/` folder,
+or just run `npm start` in a terminal tab when you want it.
 
 ## Uninstall
 
 ```sh
 claude mcp remove strava
-docker compose -f ~/Developer/strava-mcp/docker-compose.yml down -v  # -v deletes the database
-rm -rf ~/Developer/strava-mcp
+docker compose -f ~/training-time-machine/docker-compose.yml down -v  # -v deletes the database
+rm -rf ~/training-time-machine
 ```

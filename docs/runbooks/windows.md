@@ -19,8 +19,8 @@ Start Docker Desktop once and finish its setup. Verify in a new terminal:
 ## 1. Clone and build
 
 ```powershell
-git clone <this-repo> $HOME\strava-mcp
-cd $HOME\strava-mcp
+git clone https://github.com/barracoder/training-time-machine.git $HOME\training-time-machine
+cd $HOME\training-time-machine
 npm install
 npm run build
 ```
@@ -50,31 +50,31 @@ npm test   # 26 tests, integration tests use a separate strava_test database
 
 ```powershell
 # Claude Code
-claude mcp add strava -- node $HOME\strava-mcp\dist\index.js
+claude mcp add strava -- node $HOME\training-time-machine\dist\index.js
 ```
 
 For Claude Desktop, add to `%APPDATA%\Claude\claude_desktop_config.json`:
 
 ```json
-{"mcpServers": {"strava": {"command": "node", "args": ["C:\\Users\\YOU\\strava-mcp\\dist\\index.js"]}}}
+{"mcpServers": {"strava": {"command": "node", "args": ["C:\\Users\\YOU\\training-time-machine\\dist\\index.js"]}}}
 ```
 
 ## 4. Website
 
 ```powershell
-cd $HOME\strava-mcp\website
+cd $HOME\training-time-machine\website
 npm install
 npm run build
 npm start          # http://localhost:5178
 ```
 
 To auto-start, create a Task Scheduler task running `npm start` in
-`%USERPROFILE%\strava-mcp\website` at logon, or run it manually.
+`%USERPROFILE%\training-time-machine\website` at logon, or run it manually.
 
 ## Uninstall
 
 ```powershell
 claude mcp remove strava
-docker compose -f $HOME\strava-mcp\docker-compose.yml down -v   # -v deletes the database
-Remove-Item -Recurse -Force $HOME\strava-mcp
+docker compose -f $HOME\training-time-machine\docker-compose.yml down -v   # -v deletes the database
+Remove-Item -Recurse -Force $HOME\training-time-machine
 ```
