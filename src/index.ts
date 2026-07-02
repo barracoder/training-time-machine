@@ -1,25 +1,14 @@
 #!/usr/bin/env node
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { StravaExport, nonEmpty, type Activity } from "./export.js";
+import { createPool } from "./db.js";
 
-const defaultDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "data");
-const exportDir = process.argv[2] ?? process.env.STRAVA_EXPORT_DIR ?? defaultDir;
-
-let data: StravaExport;
-try {
-  data = new StravaExport(exportDir);
-} catch (err) {
-  console.error(err instanceof Error ? err.message : String(err));
-  process.exit(1);
-}
+const pool = createPool();
 
 const server = new McpServer({
   name: "strava-mcp",
-  version: "0.2.0",
+  version: "0.3.0",
 });
 
 type ToolResult = {
@@ -27,54 +16,37 @@ type ToolResult = {
   isError?: boolean;
 };
 
-function call(fn: () => unknown): ToolResult {
+async function call(fn: () => Promise<unknown>): Promise<ToolResult> {
   try {
-    const result = fn();
+    const result = await fn();
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+    let message = err instanceof Error ? err.message : String(err);
+    if (/ECONNREFUSED/.test(message)) {
+      message +=
+        "\nMySQL is not reachable. Start it with `docker compose up -d` in the strava-mcp repo, " +
+        "and load data with the strava-extract script if you haven't yet.";
+    }
     return { content: [{ type: "text", text: message }], isError: true };
   }
 }
 
-const num = (s: string | undefined): number => (s ? Number(s) : 0);
-
-/** Meters; the second Distance column is meters, the first is km. */
-function distanceMeters(a: Activity): number {
-  const detailed = a.fields["Distance 2"];
-  if (detailed) return num(detailed);
-  return num(a.fields["Distance"]) * 1000;
-}
-
-function summarize(a: Activity) {
-  return nonEmpty({
-    id: a.id,
-    date: a.date?.toISOString() ?? a.fields["Activity Date"],
-    name: a.name,
-    type: a.type,
-    distance_m: distanceMeters(a) ? String(Math.round(distanceMeters(a))) : "",
-    moving_time_s: a.fields["Moving Time"],
-    elapsed_time_s: a.fields["Elapsed Time"],
-    elevation_gain_m: a.fields["Elevation Gain"],
-    average_speed_ms: a.fields["Average Speed"],
-    average_heart_rate: a.fields["Average Heart Rate"],
-    gear: a.fields["Activity Gear"],
-    has_track: a.fields["Filename"] ? "true" : "",
-  });
+async function rows(sql: string, params: unknown[] = []): Promise<Record<string, unknown>[]> {
+  const [result] = await pool.query(sql, params);
+  return result as Record<string, unknown>[];
 }
 
 server.registerTool(
   "get_athlete",
   {
     title: "Get athlete",
-    description: "The athlete's profile from the export: name, location, weight, plus bikes and shoes.",
+    description: "The athlete's profile (name, location, weight) plus bikes and shoes.",
     inputSchema: {},
   },
   () =>
-    call(() => ({
-      profile: data.readCsv("profile.csv").map(nonEmpty)[0] ?? {},
-      bikes: data.readCsv("bikes.csv").map(nonEmpty),
-      shoes: data.readCsv("shoes.csv").map(nonEmpty),
+    call(async () => ({
+      profile: (await rows(`SELECT * FROM athlete`))[0] ?? null,
+      gear: await rows(`SELECT * FROM gear ORDER BY kind, name`),
     })),
 );
 
@@ -83,45 +55,29 @@ server.registerTool(
   {
     title: "Get athlete stats",
     description:
-      "Totals per activity type (count, distance, moving time, elevation gain) for the last 4 weeks, year to date, and all time — computed from the export.",
+      "Totals per activity type (count, distance km, moving time hours, elevation gain m) for the last 4 weeks, year to date, and all time.",
     inputSchema: {},
   },
   () =>
-    call(() => {
-      const now = Date.now();
-      const fourWeeksAgo = now - 28 * 24 * 3600 * 1000;
-      const yearStart = Date.UTC(new Date(now).getUTCFullYear(), 0, 1);
-
-      const aggregate = (filter: (a: Activity) => boolean) => {
-        const byType: Record<
-          string,
-          { count: number; distance_km: number; moving_time_h: number; elevation_gain_m: number }
-        > = {};
-        for (const a of data.activities) {
-          if (!filter(a)) continue;
-          const t = (byType[a.type] ??= {
-            count: 0,
-            distance_km: 0,
-            moving_time_h: 0,
-            elevation_gain_m: 0,
-          });
-          t.count++;
-          t.distance_km += distanceMeters(a) / 1000;
-          t.moving_time_h += num(a.fields["Moving Time"]) / 3600;
-          t.elevation_gain_m += num(a.fields["Elevation Gain"]);
-        }
-        for (const t of Object.values(byType)) {
-          t.distance_km = Math.round(t.distance_km * 10) / 10;
-          t.moving_time_h = Math.round(t.moving_time_h * 10) / 10;
-          t.elevation_gain_m = Math.round(t.elevation_gain_m);
-        }
-        return byType;
-      };
-
+    call(async () => {
+      const aggregate = (where: string) =>
+        rows(
+          `SELECT type,
+                  COUNT(*) AS count,
+                  ROUND(SUM(distance_m) / 1000, 1) AS distance_km,
+                  ROUND(SUM(moving_time_s) / 3600, 1) AS moving_time_h,
+                  ROUND(SUM(elevation_gain_m)) AS elevation_gain_m
+           FROM activities ${where}
+           GROUP BY type ORDER BY count DESC`,
+        );
       return {
-        recent_4_weeks: aggregate((a) => (a.date?.getTime() ?? 0) >= fourWeeksAgo),
-        year_to_date: aggregate((a) => (a.date?.getTime() ?? 0) >= yearStart),
-        all_time: aggregate(() => true),
+        recent_4_weeks: await aggregate(
+          `WHERE start_time >= UTC_TIMESTAMP() - INTERVAL 28 DAY`,
+        ),
+        year_to_date: await aggregate(
+          `WHERE start_time >= MAKEDATE(YEAR(UTC_TIMESTAMP()), 1)`,
+        ),
+        all_time: await aggregate(``),
       };
     }),
 );
@@ -130,14 +86,13 @@ server.registerTool(
   "list_activities",
   {
     title: "List activities",
-    description:
-      "List activities from the export, most recent first, with date/type/name filtering and paging.",
+    description: "List activities, most recent first, with date/type/name filtering and paging.",
     inputSchema: {
       after: z
         .string()
         .optional()
-        .describe("ISO date (e.g. 2026-01-01); only activities on or after this date"),
-      before: z.string().optional().describe("ISO date; only activities before this date"),
+        .describe("ISO date (e.g. 2026-01-01); only activities on or after this date (UTC)"),
+      before: z.string().optional().describe("ISO date; only activities before this date (UTC)"),
       type: z.string().optional().describe('Activity type filter, e.g. "Ride", "Run", "Walk"'),
       query: z.string().optional().describe("Case-insensitive substring match on activity name"),
       page: z.number().int().min(1).optional().describe("Page number (default 1)"),
@@ -145,27 +100,40 @@ server.registerTool(
     },
   },
   ({ after, before, type, query, page = 1, per_page = 30 }) =>
-    call(() => {
-      let list = data.activities;
+    call(async () => {
+      const where: string[] = [];
+      const params: unknown[] = [];
       if (after) {
-        const t = Date.parse(after);
-        list = list.filter((a) => (a.date?.getTime() ?? 0) >= t);
+        where.push(`start_time >= ?`);
+        params.push(after);
       }
       if (before) {
-        const t = Date.parse(before);
-        list = list.filter((a) => (a.date?.getTime() ?? 0) < t);
+        where.push(`start_time < ?`);
+        params.push(before);
       }
-      if (type) list = list.filter((a) => a.type.toLowerCase() === type.toLowerCase());
+      if (type) {
+        where.push(`type = ?`);
+        params.push(type);
+      }
       if (query) {
-        const q = query.toLowerCase();
-        list = list.filter((a) => a.name.toLowerCase().includes(q));
+        where.push(`name LIKE ?`);
+        params.push(`%${query}%`);
       }
-      const start = (page - 1) * per_page;
-      return {
-        total: list.length,
-        page,
-        activities: list.slice(start, start + per_page).map(summarize),
-      };
+      const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+      const [{ total }] = (await rows(
+        `SELECT COUNT(*) AS total FROM activities ${whereSql}`,
+        params,
+      )) as [{ total: number }];
+      const activities = await rows(
+        `SELECT id, start_time, name, type, distance_m, moving_time_s, elapsed_time_s,
+                elevation_gain_m, average_speed_ms, average_heartrate, average_watts, gear,
+                (filename IS NOT NULL) AS has_track
+         FROM activities ${whereSql}
+         ORDER BY start_time DESC
+         LIMIT ? OFFSET ?`,
+        [...params, per_page, (page - 1) * per_page],
+      );
+      return { total, page, activities };
     }),
 );
 
@@ -174,16 +142,16 @@ server.registerTool(
   {
     title: "Get activity",
     description:
-      "All recorded fields for one activity: times, speeds, elevation, power, weather, gear, etc. Duplicated export columns are suffixed with \" 2\" (the detailed block; e.g. \"Distance\" is km, \"Distance 2\" is meters).",
+      "One activity in full: typed columns plus every raw export field (weather, power, temps...) from the `fields` JSON.",
     inputSchema: {
       activity_id: z.string().describe("Activity id (from list_activities)"),
     },
   },
   ({ activity_id }) =>
-    call(() => {
-      const a = data.findActivity(activity_id);
-      if (!a) throw new Error(`No activity with id ${activity_id} in the export.`);
-      return { ...nonEmpty(a.fields), date_utc: a.date?.toISOString() };
+    call(async () => {
+      const result = await rows(`SELECT * FROM activities WHERE id = ?`, [activity_id]);
+      if (result.length === 0) throw new Error(`No activity with id ${activity_id}.`);
+      return result[0];
     }),
 );
 
@@ -192,7 +160,7 @@ server.registerTool(
   {
     title: "Get activity streams",
     description:
-      "Time-series track data for an activity parsed from its GPX file: GPS, altitude, and heart rate/cadence/power/temperature where recorded. Downsampled to max_points evenly spaced samples.",
+      "Time-series track data for an activity: GPS, altitude, and heart rate/cadence/power/temperature where recorded. Downsampled to ~max_points evenly spaced samples.",
     inputSchema: {
       activity_id: z.string().describe("Activity id"),
       max_points: z
@@ -205,13 +173,25 @@ server.registerTool(
     },
   },
   ({ activity_id, max_points = 200 }) =>
-    call(() => {
-      const a = data.findActivity(activity_id);
-      if (!a) throw new Error(`No activity with id ${activity_id} in the export.`);
-      const points = data.readStreams(a);
-      const stride = Math.max(1, Math.ceil(points.length / max_points));
-      const sampled = points.filter((_, i) => i % stride === 0);
-      return { total_points: points.length, returned_points: sampled.length, points: sampled };
+    call(async () => {
+      const [counter] = (await rows(
+        `SELECT COUNT(*) AS n FROM activity_points WHERE activity_id = ?`,
+        [activity_id],
+      )) as [{ n: number }];
+      if (counter.n === 0) {
+        throw new Error(
+          `No track points for activity ${activity_id} (manual entry, non-GPX file, or unknown id).`,
+        );
+      }
+      const stride = Math.max(1, Math.ceil(counter.n / max_points));
+      const points = await rows(
+        `SELECT seq, time, lat, lon, altitude, heartrate, cadence, watts, temp
+         FROM activity_points
+         WHERE activity_id = ? AND seq % ? = 0
+         ORDER BY seq`,
+        [activity_id, stride],
+      );
+      return { total_points: counter.n, returned_points: points.length, points };
     }),
 );
 
@@ -219,10 +199,10 @@ server.registerTool(
   "list_routes",
   {
     title: "List routes",
-    description: "Saved routes in the export.",
+    description: "Saved routes from the export.",
     inputSchema: {},
   },
-  () => call(() => data.readCsv("routes.csv").map(nonEmpty)),
+  () => call(() => rows(`SELECT * FROM routes ORDER BY name`)),
 );
 
 server.registerTool(
@@ -232,9 +212,40 @@ server.registerTool(
     description: "The athlete's distance/time goals from the export.",
     inputSchema: {},
   },
-  () => call(() => data.readCsv("goals.csv").map(nonEmpty)),
+  () => call(() => rows(`SELECT * FROM goals ORDER BY start_date`)),
+);
+
+server.registerTool(
+  "query",
+  {
+    title: "Run read-only SQL",
+    description:
+      "Run a read-only SELECT against the strava database for anything the other tools don't cover. " +
+      "Tables: athlete, gear, activities (typed columns + raw `fields` JSON), " +
+      "activity_points (activity_id, seq, time, lat, lon, altitude, heartrate, cadence, watts, temp), " +
+      "routes, goals. Results are capped at 200 rows unless the query has its own LIMIT.",
+    inputSchema: {
+      sql: z.string().describe("A single SELECT (or WITH ... SELECT) statement"),
+    },
+  },
+  ({ sql }) =>
+    call(async () => {
+      const trimmed = sql.trim().replace(/;\s*$/, "");
+      if (!/^(select|with)\b/i.test(trimmed) || trimmed.includes(";")) {
+        throw new Error("Only a single SELECT (or WITH ... SELECT) statement is allowed.");
+      }
+      const limited = /\blimit\s+\d+/i.test(trimmed) ? trimmed : `${trimmed} LIMIT 200`;
+      return rows(limited);
+    }),
 );
 
 const transport = new StdioServerTransport();
+// The MySQL pool keeps the event loop alive after the client disconnects, so
+// shut down when stdin closes. (transport.onclose can't be used here — the
+// SDK's connect() replaces it.)
+process.stdin.on("close", async () => {
+  await pool.end().catch(() => {});
+  process.exit(0);
+});
 await server.connect(transport);
-console.error(`strava-mcp serving export at ${exportDir} (${data.activities.length} activities)`);
+console.error("strava-mcp serving MySQL-backed Strava export data on stdio");

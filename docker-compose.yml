@@ -1,0 +1,21 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: strava-mysql
+    environment:
+      MYSQL_DATABASE: strava
+      MYSQL_USER: strava
+      MYSQL_PASSWORD: strava
+      MYSQL_ROOT_PASSWORD: strava-root
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - strava-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-ustrava", "-pstrava"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  strava-mysql-data:
