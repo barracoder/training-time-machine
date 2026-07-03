@@ -88,6 +88,16 @@ test("extract: loads fixture export into MySQL", async (t) => {
   ];
   assert.equal(athlete.first_name, "Test");
   assert.equal(athlete.city, "Testville, TS");
+
+  // Media: activity 100 references two files, only one exists in the archive.
+  const [mediaRows] = (await pool!.query(
+    `SELECT activity_id, seq, filename, mime, OCTET_LENGTH(data) AS bytes FROM activity_media`,
+  )) as [Record<string, unknown>[], unknown];
+  assert.equal(mediaRows.length, 1);
+  assert.equal(mediaRows[0].activity_id, 100);
+  assert.equal(mediaRows[0].filename, "test-photo.jpg");
+  assert.equal(mediaRows[0].mime, "image/jpeg");
+  assert.ok(Number(mediaRows[0].bytes) > 0);
 });
 
 test("extract: re-running replaces data (idempotent)", async (t) => {

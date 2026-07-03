@@ -50,6 +50,7 @@ const toDateTime = (d: Date | null): string | null =>
   d ? d.toISOString().slice(0, 19).replace("T", " ") : null;
 
 const SCHEMA = `
+DROP TABLE IF EXISTS activity_media;
 DROP TABLE IF EXISTS activity_points;
 DROP TABLE IF EXISTS activities;
 DROP TABLE IF EXISTS athlete;
@@ -115,6 +116,15 @@ CREATE TABLE activity_points (
   cadence DOUBLE,
   watts DOUBLE,
   temp DOUBLE,
+  PRIMARY KEY (activity_id, seq)
+);
+
+CREATE TABLE activity_media (
+  activity_id BIGINT NOT NULL,
+  seq INT NOT NULL,
+  filename VARCHAR(255),
+  mime VARCHAR(64),
+  data LONGBLOB,
   PRIMARY KEY (activity_id, seq)
 );
 
@@ -228,6 +238,41 @@ for (const a of data.activities) {
 }
 console.log(
   `${totalPoints} track points loaded${skipped ? ` (${skipped} activities skipped: unsupported track files)` : ""}`,
+);
+
+const MIME_BY_EXT: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".gif": "image/gif",
+  ".webp": "image/webp",
+  ".heic": "image/heic",
+  ".mp4": "video/mp4",
+  ".mov": "video/quicktime",
+};
+
+let mediaLoaded = 0;
+let mediaMissing = 0;
+for (const a of data.activities) {
+  for (let i = 0; i < a.media.length; i++) {
+    const relPath = a.media[i];
+    let bytes;
+    try {
+      bytes = data.readMedia(relPath);
+    } catch {
+      mediaMissing++;
+      continue;
+    }
+    const ext = path.extname(relPath).toLowerCase();
+    await conn.execute(
+      `INSERT INTO activity_media (activity_id, seq, filename, mime, data) VALUES (?, ?, ?, ?, ?)`,
+      [a.id, i, path.basename(relPath), MIME_BY_EXT[ext] ?? "application/octet-stream", bytes],
+    );
+    mediaLoaded++;
+  }
+}
+console.log(
+  `${mediaLoaded} media files loaded${mediaMissing ? ` (${mediaMissing} missing from archive)` : ""}`,
 );
 
 for (const r of data.routes) {

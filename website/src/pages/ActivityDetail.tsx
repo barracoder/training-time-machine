@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { MapContainer, Polyline, TileLayer, CircleMarker } from 'react-leaflet';
 import { LatLngBoundsExpression } from 'leaflet';
 import {
-  AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  AreaChart, Area, ComposedChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import { apiGet, PointsResponse } from '../api';
 import { CHART, DataState, useApi } from '../components/common';
@@ -37,8 +37,14 @@ const FIELDS_SKIP = new Set([
   'Activity ID', 'Activity Name', 'Activity Date', 'Activity Type', 'Filename',
   'Distance', 'Distance 2', 'Moving Time', 'Elapsed Time', 'Elapsed Time 2',
   'Commute', 'Commute 2', 'Elevation Gain', 'Elevation Loss', 'Max Speed',
-  'Activity Description', 'Activity Gear',
+  'Activity Description', 'Activity Gear', 'Media',
 ]);
+
+interface MediaItem {
+  seq: number;
+  filename: string | null;
+  mime: string | null;
+}
 
 function ProfileChart({
   data, dataKey, unit, color, name,
@@ -108,23 +114,38 @@ export default function ActivityDetail() {
     ];
   }, [track]);
 
-  const chartData = useMemo(
-    () =>
-      (pts.data?.points ?? []).map((p) => ({
-        km: p.dist_m / 1000,
-        altitude: p.altitude != null ? Math.round(Number(p.altitude)) : null,
-        speed: p.speed_kmh,
-        heartrate: p.heartrate != null ? Number(p.heartrate) : null,
-        cadence: p.cadence != null ? Number(p.cadence) : null,
-        watts: p.watts != null ? Number(p.watts) : null,
-      })),
-    [pts.data]
-  );
+  const chartData = useMemo(() => {
+    const points = pts.data?.points ?? [];
+    // GPS altitude makes per-segment grade jumpy; smooth it for display with
+    // a small moving average.
+    const smoothGrade = (i: number): number | null => {
+      let sum = 0;
+      let n = 0;
+      for (let j = Math.max(0, i - 2); j <= Math.min(points.length - 1, i + 2); j++) {
+        const g = points[j].grade_pct;
+        if (g != null) {
+          sum += Number(g);
+          n++;
+        }
+      }
+      return n > 0 ? Math.round((sum / n) * 10) / 10 : null;
+    };
+    return points.map((p, i) => ({
+      km: p.dist_m / 1000,
+      altitude: p.altitude != null ? Math.round(Number(p.altitude)) : null,
+      grade: p.grade_pct != null ? smoothGrade(i) : null,
+      speed: p.speed_kmh,
+      heartrate: p.heartrate != null ? Number(p.heartrate) : null,
+      cadence: p.cadence != null ? Number(p.cadence) : null,
+      watts: p.watts != null ? Number(p.watts) : null,
+    }));
+  }, [pts.data]);
 
-  const has = (k: 'altitude' | 'speed' | 'heartrate' | 'cadence' | 'watts') =>
+  const has = (k: 'altitude' | 'grade' | 'speed' | 'heartrate' | 'cadence' | 'watts') =>
     chartData.some((d) => d[k] != null);
 
   const d = detail.data;
+  const media = ((d?.media ?? []) as MediaItem[]).filter((m) => m.mime?.startsWith('image/'));
   const fields = (d?.fields ?? null) as Record<string, unknown> | null;
   const fieldEntries = fields
     ? Object.entries(fields).filter(
@@ -183,6 +204,27 @@ export default function ActivityDetail() {
                 ))}
               </div>
             </div>
+            {media.length > 0 && (
+              <>
+                <h2>Photos</h2>
+                <div className="media-grid">
+                  {media.map((m) => (
+                    <a
+                      key={m.seq}
+                      href={`/api/activities/${id}/media/${m.seq}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <img
+                        src={`/api/activities/${id}/media/${m.seq}`}
+                        alt={m.filename ?? `Photo ${m.seq + 1}`}
+                        loading="lazy"
+                      />
+                    </a>
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
       </DataState>
@@ -210,7 +252,48 @@ export default function ActivityDetail() {
         <>
           <h2>Elevation profile</h2>
           <div className="panel">
-            <ProfileChart data={chartData} dataKey="altitude" unit="m" color="#5b9bd5" name="Altitude" />
+            <ResponsiveContainer width="100%" height={220}>
+              <ComposedChart data={chartData}>
+                <defs>
+                  <linearGradient id="grad-altitude" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#5b9bd5" stopOpacity={0.5} />
+                    <stop offset="100%" stopColor="#5b9bd5" stopOpacity={0.05} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke={CHART.grid} vertical={false} />
+                <XAxis
+                  dataKey="km"
+                  type="number"
+                  domain={['dataMin', 'dataMax']}
+                  stroke={CHART.axis}
+                  tick={{ fontSize: 11 }}
+                  tickFormatter={(v: number) => `${v.toFixed(0)}`}
+                  unit=" km"
+                />
+                <YAxis yAxisId="alt" stroke={CHART.axis} tick={{ fontSize: 11 }} width={45} domain={['auto', 'auto']} />
+                {has('grade') && (
+                  <YAxis
+                    yAxisId="grade"
+                    orientation="right"
+                    stroke={CHART.axis}
+                    tick={{ fontSize: 11 }}
+                    width={40}
+                    unit="%"
+                  />
+                )}
+                <Tooltip
+                  {...CHART.tooltip}
+                  labelFormatter={(v: number) => `${v.toFixed(1)} km`}
+                  formatter={(v: number, name: string) =>
+                    name === 'Grade' ? [`${v}%`, 'Grade'] : [`${v} m`, 'Altitude']
+                  }
+                />
+                <Area yAxisId="alt" dataKey="altitude" name="Altitude" stroke="#5b9bd5" strokeWidth={1.6} fill="url(#grad-altitude)" isAnimationActive={false} connectNulls />
+                {has('grade') && (
+                  <Line yAxisId="grade" dataKey="grade" name="Grade" stroke="#e6b422" strokeWidth={1} strokeOpacity={0.8} dot={false} isAnimationActive={false} connectNulls />
+                )}
+              </ComposedChart>
+            </ResponsiveContainer>
           </div>
         </>
       )}
