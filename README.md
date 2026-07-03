@@ -1,5 +1,9 @@
 # Training Time Machine: your data, on your machine
 
+[![Build](https://github.com/barracoder/training-time-machine/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/barracoder/training-time-machine/actions/workflows/build.yml)
+[![Test](https://github.com/barracoder/training-time-machine/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/barracoder/training-time-machine/actions/workflows/test.yml)
+[![Dependencies](https://github.com/barracoder/training-time-machine/actions/workflows/dependencies.yml/badge.svg?branch=main)](https://github.com/barracoder/training-time-machine/actions/workflows/dependencies.yml)
+
 **This repo is a protest.** In 2026 Strava put API access to your *own* activities behind a paid subscription. If you don't pay, third-party apps (and you) can no longer read your data through the API; new apps get a `403 Application Inactive` until the developer holds an active subscription. Meanwhile Strava keeps monetising that same data itself. Your training history is **your** data; limiting your access to it is wrong.
 
 You don't have to pay to get it back. Data-portability law (GDPR Art. 20, UK GDPR, and equivalents elsewhere) guarantees your right to a copy of your personal data, and Strava honours it through its bulk export. This repo turns that export into something better than the API ever was: a local MySQL database, an MCP server so AI assistants can answer questions about your training, and a full analysis website. All offline, no Strava account required after the download, no subscription, ever.
