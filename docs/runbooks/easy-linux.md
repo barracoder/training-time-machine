@@ -87,6 +87,8 @@ in it when you're finished.
 | --- | --- |
 | `docker: command not found` | Redo the Docker block in Part 1 |
 | `port is already allocated` or `Bind ... 3306 failed` | Another database program is using port 3306. Close it, or change the port in `docker-compose.yml` |
+| `container name "/strava-mysql" is already in use` | An earlier copy of this project already created the database. Run `docker rm -f strava-mysql`, then try again (your data lives in a volume and is not deleted) |
+| `container strava-mysql is unhealthy` or it gives up while "waiting" | The database sets itself up on the very first run, which can take a couple of minutes on slower machines. Wait a minute and run the same command again |
 | `permission denied ... docker.sock` | You skipped the log-out/log-in after Part 1 |
 | `npm: command not found` | Redo the Node.js block in Part 1 |
 | The page says "unable to connect" | The terminal from Part 5 must stay open. Run `./start.sh` again |
