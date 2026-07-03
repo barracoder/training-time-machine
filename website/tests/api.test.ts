@@ -168,6 +168,7 @@ describe('GET /api/activities/:id', () => {
     expect(Number(res.body.id)).toBe(Number(id));
     expect(res.body).toHaveProperty('start_time');
     expect(res.body).toHaveProperty('point_count');
+    expect(Array.isArray(res.body.media)).toBe(true);
     if (res.body.fields != null) {
       expect(typeof res.body.fields).toBe('object');
     }
@@ -184,6 +185,37 @@ describe('GET /api/activities/:id', () => {
 
   it('400s for a non-numeric id', async () => {
     const res = await request(app).get('/api/activities/abc');
+    expect(res.status).toBe(400);
+  });
+});
+
+describe('GET /api/activities/:id/media/:seq', () => {
+  it('serves media bytes with the stored content type', async () => {
+    // Find an activity that has media attached; skip the byte check if none do.
+    const list = await request(app).get('/api/activities').query({ pageSize: 100 });
+    let withMedia: { id: number; mime: string | null } | null = null;
+    for (const a of list.body.rows) {
+      const d = await request(app).get(`/api/activities/${a.id}`);
+      if (d.body.media.length > 0) {
+        withMedia = { id: a.id, mime: d.body.media[0].mime };
+        break;
+      }
+    }
+    if (withMedia == null) return;
+    const res = await request(app).get(`/api/activities/${withMedia.id}/media/0`);
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toBe(withMedia.mime);
+    expect(res.body.length).toBeGreaterThan(0);
+  });
+
+  it('404s for nonexistent media', async () => {
+    const res = await request(app).get('/api/activities/999999999999999/media/0');
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('not_found');
+  });
+
+  it('400s for non-numeric refs', async () => {
+    const res = await request(app).get('/api/activities/abc/media/xyz');
     expect(res.status).toBe(400);
   });
 });
@@ -219,8 +251,17 @@ describe('GET /api/activities/:id/points', () => {
     expect(res.body.points.length).toBeLessThanOrEqual(101); // stride + final point
     expect(res.body.points.length).toBeGreaterThan(10);
     const p = res.body.points[Math.floor(res.body.points.length / 2)];
-    for (const key of ['seq', 'lat', 'lon', 'dist_m', 'elapsed_s']) {
+    for (const key of ['seq', 'lat', 'lon', 'dist_m', 'elapsed_s', 'speed_kmh', 'grade_pct']) {
       expect(p).toHaveProperty(key);
+    }
+    // Grade must be finite where present, and present on at least one point
+    // for a real GPS track.
+    const grades = res.body.points
+      .map((x: { grade_pct: number | null }) => x.grade_pct)
+      .filter((g: number | null): g is number => g != null);
+    expect(grades.length).toBeGreaterThan(0);
+    for (const g of grades) {
+      expect(Number.isFinite(g)).toBe(true);
     }
     // Cumulative distance must be non-decreasing.
     const dists = res.body.points.map((x: { dist_m: number }) => x.dist_m);

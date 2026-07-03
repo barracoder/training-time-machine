@@ -41,6 +41,7 @@ function normalizeActivity(a: ExportActivity): Activity {
     gear: a.fields["Activity Gear"] || null,
     commute: a.fields["Commute"] === "true",
     filename: a.fields["Filename"] || null,
+    media: (a.fields["Media"] ?? "").split("|").filter((m) => m !== ""),
     raw: Object.fromEntries(Object.entries(a.fields).filter(([, v]) => v !== "")),
   };
 }
@@ -113,6 +114,9 @@ export const stravaSource: TrainingDataSource = {
           watts: p.watts ?? null,
           temp: p.temp ?? null,
         }));
+      },
+      readMedia(relPath: string): Buffer {
+        return fs.readFileSync(path.join(dir, relPath));
       },
     };
   },

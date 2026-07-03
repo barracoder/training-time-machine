@@ -48,6 +48,8 @@ export interface Activity {
   commute: boolean;
   /** Source-relative path of the raw track file, if any */
   filename: string | null;
+  /** Source-relative paths of attached media files (photos/videos) */
+  media: string[];
   /** Every field of the source's raw record, preserved verbatim */
   raw: Record<string, string>;
 }
@@ -92,6 +94,11 @@ export interface SourceData {
    * file format, missing file).
    */
   readPoints(activity: Activity): TrackPoint[];
+  /**
+   * Raw bytes of one media file from Activity.media. Throws when the file
+   * is missing from the export.
+   */
+  readMedia(relPath: string): Buffer;
 }
 
 /** A pluggable training-data provider. */

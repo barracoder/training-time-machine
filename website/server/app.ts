@@ -307,7 +307,40 @@ export function createApp(): express.Express {
           /* keep raw string */
         }
       }
+      try {
+        row.media = await query(
+          `SELECT seq, filename, mime FROM activity_media WHERE activity_id = ? ORDER BY seq`,
+          [id]
+        );
+      } catch {
+        // Database imported before media support — no table, no media.
+        row.media = [];
+      }
       res.json(row);
+    })
+  );
+
+  api.get(
+    '/activities/:id/media/:seq',
+    h(async (req, res) => {
+      const id = Number(req.params.id);
+      const seq = Number(req.params.seq);
+      if (!Number.isInteger(id) || !Number.isInteger(seq)) {
+        res.status(400).json({ error: 'bad_request', message: 'invalid media reference' });
+        return;
+      }
+      const row = await queryOne<{ mime: string | null; data: Buffer }>(
+        `SELECT mime, data FROM activity_media WHERE activity_id = ? AND seq = ?`,
+        [id, seq]
+      );
+      if (!row || !row.data) {
+        res.status(404).json({ error: 'not_found', message: `no media ${seq} for activity ${id}` });
+        return;
+      }
+      res.setHeader('Content-Type', row.mime ?? 'application/octet-stream');
+      // Media only changes when the whole database is re-imported.
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.send(row.data);
     })
   );
 
@@ -370,15 +403,20 @@ export function createApp(): express.Express {
         (_, i) => i % stride === 0 || i === enriched.length - 1
       );
 
-      // Segment speed between consecutive sampled points (km/h).
+      // Segment speed (km/h) and grade (%) between consecutive sampled points.
       const points = sampled.map((p, i) => {
         let speed_kmh: number | null = null;
+        let grade_pct: number | null = null;
         if (i > 0) {
           const prev = sampled[i - 1];
           const dd = p.dist_m - prev.dist_m;
           const dt =
             p.elapsed_s != null && prev.elapsed_s != null ? p.elapsed_s - prev.elapsed_s : 0;
           if (dt > 0) speed_kmh = Math.round((dd / dt) * 3.6 * 10) / 10;
+          // Short segments make GPS altitude noise explode into absurd grades.
+          if (dd >= 5 && p.altitude != null && prev.altitude != null) {
+            grade_pct = Math.round(((num(p.altitude) - num(prev.altitude)) / dd) * 1000) / 10;
+          }
         }
         return {
           seq: p.seq,
@@ -388,6 +426,7 @@ export function createApp(): express.Express {
           altitude: p.altitude,
           dist_m: p.dist_m,
           speed_kmh,
+          grade_pct,
           heartrate: p.heartrate,
           cadence: p.cadence,
           watts: p.watts,

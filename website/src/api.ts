@@ -94,6 +94,7 @@ export interface TrackPoint {
   altitude: number | null;
   dist_m: number;
   speed_kmh: number | null;
+  grade_pct: number | null;
   heartrate: number | null;
   cadence: number | null;
   watts: number | null;
