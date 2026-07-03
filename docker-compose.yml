@@ -13,6 +13,9 @@ services:
       - strava-mysql-data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-ustrava", "-pstrava"]
+      # First boot initializes the data directory, which can exceed a minute
+      # on Windows/WSL2 — retries must not start counting until that's done.
+      start_period: 90s
       interval: 2s
       timeout: 5s
       retries: 30
