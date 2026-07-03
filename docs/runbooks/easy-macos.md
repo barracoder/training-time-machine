@@ -83,6 +83,8 @@ records and more. Keep the Terminal window open while browsing; press
 | `docker: command not found` | Docker Desktop isn't installed or hasn't finished starting. Open it and wait for the whale icon |
 | `Cannot connect ... database` | Same as above. Start Docker, wait a minute, try again |
 | `port is already allocated` or `Bind ... 3306 failed` | Another database program is using port 3306. Close it, or ask a technical friend to change the port in `docker-compose.yml` |
+| `container name "/strava-mysql" is already in use` | An earlier copy of this project already created the database. Open Docker Desktop → **Containers**, delete the one called `strava-mysql`, then try again (your data is kept in a separate volume) |
+| `container strava-mysql is unhealthy` or it gives up while "waiting" | The database sets itself up on the very first run, which can take a couple of minutes. Wait a minute and run the same command again |
 | `npm: command not found` | Node.js isn't installed. Redo Part 1, then close and reopen Terminal |
 | The page says "can't connect to server" | The Terminal window from Part 5 must stay open. Run `./start.sh` again |
 | macOS says the app "can't be opened" | System Settings → Privacy & Security → click **Open Anyway** |

@@ -91,5 +91,7 @@ press `Ctrl+C` in it) when you're finished.
 | `docker : The term 'docker' is not recognized` | Docker Desktop isn't installed or hasn't finished starting. Open it and wait for the whale icon |
 | `Cannot connect ... database` | Same as above. Start Docker Desktop, wait a minute, try again |
 | `port is already allocated` or `Bind ... 3306 failed` | Another database program is using port 3306. Close it, or ask a technical friend to change the port in `docker-compose.yml` |
+| `container name "/strava-mysql" is already in use` | An earlier copy of this project already created the database. Open Docker Desktop → **Containers**, delete the one called `strava-mysql`, then try again (your data is kept in a separate volume) |
+| `container strava-mysql is unhealthy` or it gives up while "waiting" | The database sets itself up on the very first run, which can take a couple of minutes on Windows. Wait a minute and run the same command again |
 | `npm : The term 'npm' is not recognized` | Node.js isn't installed. Redo Part 1, then close and reopen PowerShell |
 | The page says "site can't be reached" | The blue window from Part 5 must stay open. Run `.\start.ps1` again |
